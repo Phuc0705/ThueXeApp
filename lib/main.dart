@@ -39,6 +39,7 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => di.sl<AuthBloc>()..add(CheckAuthStatus())),
         BlocProvider(create: (_) => di.sl<CarBloc>()..add(FetchCarsEvent())),
+        BlocProvider(create: (_) => di.sl<CarBloc>()..add(const FetchCarsEvent())),
         BlocProvider(create: (_) => di.sl<BookingBloc>()),
       ],
       child: MaterialApp(
