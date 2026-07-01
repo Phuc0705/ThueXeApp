@@ -50,6 +50,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final session = supabase.auth.currentSession;
       
       if (session != null && session.user != null) {
+      if (session != null) {
         final profile = await supabase
             .from('profiles')
             .select()
