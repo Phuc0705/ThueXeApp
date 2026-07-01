@@ -21,6 +21,7 @@ dependencies:
   flutter_dotenv: ^6.0.1
   image_picker: ^1.2.3
   image_picker_web: ^4.0.0
+  qr_flutter: ^4.1.0
 
 dev_dependencies:
   flutter_test:
