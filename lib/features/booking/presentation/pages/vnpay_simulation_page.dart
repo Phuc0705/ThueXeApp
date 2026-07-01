@@ -7,6 +7,7 @@ import '../bloc/booking_bloc.dart';
 import '../bloc/booking_event.dart';
 import '../bloc/booking_state.dart';
 import '../../../services/vietqr_service.dart';
+import '../../../config/vietqr_config.dart';
 
 class VNPaySimulationPage extends StatefulWidget {
   final String carId;
@@ -15,11 +16,6 @@ class VNPaySimulationPage extends StatefulWidget {
   final DateTime startDate;
   final DateTime endDate;
   final double totalAmount;
-  
-  // ⭐ Thông tin tài khoản nhận tiền (có thể lấy từ config)
-  final String? bankCode;          // Mã ngân hàng (VD: 970012)
-  final String? accountNumber;     // Số tài khoản
-  final String? accountName;       // Tên tài khoản
 
   const VNPaySimulationPage({
     super.key,
@@ -29,9 +25,6 @@ class VNPaySimulationPage extends StatefulWidget {
     required this.startDate,
     required this.endDate,
     required this.totalAmount,
-    this.bankCode,
-    this.accountNumber,
-    this.accountName,
   });
 
   @override
@@ -50,25 +43,20 @@ class _VNPaySimulationPageState extends State<VNPaySimulationPage> {
     // Tạo ID booking tạm thời
     _bookingId = 'BOOKING_${DateTime.now().millisecondsSinceEpoch}';
     
-    // Convert $ to VND (1$ ≈ 25,000 VND)
-    int amountVND = (widget.totalAmount * 25000).toInt();
-    _amountVND = amountVND.toString();
+    // Convert $ to VND
+    int amountVND = (widget.totalAmount * VietQRConfig.usdToVndRate).toInt();
+    _amountVND = NumberFormat('#,###', 'vi_VN').format(amountVND);
     
     // Generate VietQR data
     _generateQRCode(amountVND);
   }
 
   void _generateQRCode(int amountVND) {
-    // Sử dụng thông tin tài khoản mặc định hoặc từ config
-    final bankCode = widget.bankCode ?? BankCodes.VIETCOMBANK;
-    final accountNumber = widget.accountNumber ?? '1234567890'; // ⭐ Thay bằng số tài khoản thực
-    final accountName = widget.accountName ?? 'ThueXeApp'; // ⭐ Thay bằng tên tài khoản
-
     // Generate VietQR theo định dạng EMV
     _qrData = VietQRService.generateVietQR(
-      bankCode: bankCode,
-      accountNumber: accountNumber,
-      accountName: accountName,
+      bankCode: VietQRConfig.bankCode,
+      accountNumber: VietQRConfig.accountNumber,
+      accountName: VietQRConfig.accountName,
       amount: amountVND,
       description: 'Dat xe tu ${DateFormat('dd/MM').format(widget.startDate)}',
       transactionId: _bookingId,
@@ -239,6 +227,21 @@ class _VNPaySimulationPageState extends State<VNPaySimulationPage> {
                             ),
                             const SizedBox(height: 12),
                             _buildInfoRow(
+                              'Người nhận',
+                              VietQRConfig.accountName,
+                              Colors.grey[700],
+                              fontSize: 12,
+                            ),
+                            const SizedBox(height: 12),
+                            _buildInfoRow(
+                              'Số tài khoản',
+                              VietQRConfig.accountNumber,
+                              Colors.grey[700],
+                              fontSize: 11,
+                              fontFamily: 'monospace',
+                            ),
+                            const SizedBox(height: 12),
+                            _buildInfoRow(
                               'Mã giao dịch',
                               _bookingId,
                               Colors.grey[700],
@@ -393,9 +396,9 @@ class _VNPaySimulationPageState extends State<VNPaySimulationPage> {
               fontWeight: fontWeight,
               color: valueColor ?? Colors.black87,
               fontFamily: fontFamily,
-              overflow: TextOverflow.ellipsis,
             ),
             maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],
