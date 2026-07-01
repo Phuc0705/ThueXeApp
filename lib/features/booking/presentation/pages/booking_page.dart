@@ -53,7 +53,7 @@ class _BookingPageState extends State<BookingPage> {
         listener: (context, state) {
           if (state is BookingSuccess) {
             // Trigger refresh cho CarBloc để đồng bộ trạng thái xe
-            context.read<CarBloc>().add(FetchCarsEvent());
+            context.read<CarBloc>().add(const FetchCarsEvent());
             
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Đặt xe thành công!')),
