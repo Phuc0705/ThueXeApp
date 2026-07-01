@@ -20,7 +20,6 @@ class AdminDashboardPage extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
-              children: [
               children: const [
                 _StatCard(title: 'Tổng người dùng', value: '1,250', color: Colors.blue, icon: Icons.people),
                 _StatCard(title: 'Tổng xe', value: '450', color: Colors.green, icon: Icons.directions_car),
@@ -64,10 +63,8 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: color.withOpacity(0.3)),
         border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
@@ -76,7 +73,6 @@ class _StatCard extends StatelessWidget {
           Icon(icon, color: color, size: 30),
           const SizedBox(height: 8),
           Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color)),
-          Text(title, textAlign: TextAlign.center, style: TextStyle(color: color.withOpacity(0.8), fontSize: 12)),
           Text(title, textAlign: TextAlign.center, style: TextStyle(color: color.withValues(alpha: 0.8), fontSize: 12)),
         ],
       ),
