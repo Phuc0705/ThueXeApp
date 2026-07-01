@@ -40,7 +40,6 @@ class ProfilePage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     decoration: BoxDecoration(
-                      color: _getRoleColor(user.role).withOpacity(0.1),
                       color: _getRoleColor(user.role).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
