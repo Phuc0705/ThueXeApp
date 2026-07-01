@@ -116,9 +116,9 @@ class _AddCarPageState extends State<AddCarPage> {
                 ? (kIsWeb 
                     ? Image.network(file.path, fit: BoxFit.cover) 
                     : Image.file(File(file.path), fit: BoxFit.cover))
-                : Column(
+                : const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
+                    children: [
                       Icon(Icons.add_a_photo, size: 40, color: Colors.grey),
                       Text('Nhấn để chọn ảnh', style: TextStyle(color: Colors.grey)),
                     ],
@@ -154,7 +154,7 @@ class _AddCarPageState extends State<AddCarPage> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: _selectedType,
+                initialValue: _selectedType,
                 decoration: const InputDecoration(labelText: 'Loại xe', border: OutlineInputBorder()),
                 items: ['Sedan', 'SUV', 'Xe điện', 'Luxury', 'Bán tải'].map((String value) {
                   return DropdownMenuItem<String>(value: value, child: Text(value));
