@@ -49,7 +49,6 @@ class AuthRepositoryImpl implements AuthRepository {
       final supabase = (remoteDataSource as AuthRemoteDataSourceImpl).supabase;
       final session = supabase.auth.currentSession;
       
-      if (session != null && session.user != null) {
       if (session != null) {
         final profile = await supabase
             .from('profiles')
