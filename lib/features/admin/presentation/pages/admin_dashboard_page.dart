@@ -21,6 +21,7 @@ class AdminDashboardPage extends StatelessWidget {
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
               children: [
+              children: const [
                 _StatCard(title: 'Tổng người dùng', value: '1,250', color: Colors.blue, icon: Icons.people),
                 _StatCard(title: 'Tổng xe', value: '450', color: Colors.green, icon: Icons.directions_car),
                 _StatCard(title: 'Đơn thuê mới', value: '12', color: Colors.orange, icon: Icons.shopping_cart),
@@ -64,8 +65,10 @@ class _StatCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(15),
         border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -74,6 +77,7 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color)),
           Text(title, textAlign: TextAlign.center, style: TextStyle(color: color.withOpacity(0.8), fontSize: 12)),
+          Text(title, textAlign: TextAlign.center, style: TextStyle(color: color.withValues(alpha: 0.8), fontSize: 12)),
         ],
       ),
     );
