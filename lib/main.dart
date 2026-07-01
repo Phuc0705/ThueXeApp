@@ -38,7 +38,6 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => di.sl<AuthBloc>()..add(CheckAuthStatus())),
-        BlocProvider(create: (_) => di.sl<CarBloc>()..add(FetchCarsEvent())),
         BlocProvider(create: (_) => di.sl<CarBloc>()..add(const FetchCarsEvent())),
         BlocProvider(create: (_) => di.sl<BookingBloc>()),
       ],
