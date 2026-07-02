@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/booking.dart';
 import '../bloc/booking_bloc.dart';
 import '../bloc/booking_event.dart';
 import '../bloc/booking_state.dart';
-import '../../../services/vietqr_service.dart';
-import '../../../config/vietqr_config.dart';
+import 'package:thuexeproject/config/vietqr_config.dart';
 
 class VNPaySimulationPage extends StatefulWidget {
   final String carId;
@@ -33,7 +31,6 @@ class VNPaySimulationPage extends StatefulWidget {
 
 class _VNPaySimulationPageState extends State<VNPaySimulationPage> {
   bool _isProcessing = false;
-  late String _qrData;
   late String _bookingId;
   late String _amountVND;
 
@@ -42,47 +39,44 @@ class _VNPaySimulationPageState extends State<VNPaySimulationPage> {
     super.initState();
     // Tạo ID booking tạm thời
     _bookingId = 'BOOKING_${DateTime.now().millisecondsSinceEpoch}';
-    
+
     // Convert $ to VND
     int amountVND = (widget.totalAmount * VietQRConfig.usdToVndRate).toInt();
     _amountVND = NumberFormat('#,###', 'vi_VN').format(amountVND);
-    
-    // Generate VietQR data
-    _generateQRCode(amountVND);
   }
 
-  void _generateQRCode(int amountVND) {
-    // Generate VietQR theo định dạng EMV
-    _qrData = VietQRService.generateVietQR(
-      bankCode: VietQRConfig.bankCode,
-      accountNumber: VietQRConfig.accountNumber,
-      accountName: VietQRConfig.accountName,
-      amount: amountVND,
-      description: 'Dat xe tu ${DateFormat('dd/MM').format(widget.startDate)}',
-      transactionId: _bookingId,
-    );
+  // ⭐ Getter tạo link ảnh VietQR tự động
+  String get _vietQrUrl {
+    int amount = (widget.totalAmount * VietQRConfig.usdToVndRate).toInt();
+    final bank = VietQRConfig.bankCode;
+    final accNum = VietQRConfig.accountNumber;
+    // Cần encode URL cho các text có dấu cách hoặc tiếng Việt
+    final accName = Uri.encodeComponent(VietQRConfig.accountName);
+    final desc = Uri.encodeComponent('Dat xe $_bookingId');
+
+    return 'https://img.vietqr.io/image/$bank-$accNum-compact.png?amount=$amount&addInfo=$desc&accountName=$accName';
   }
 
   void _processPayment(BuildContext context) {
     setState(() => _isProcessing = true);
-    
+
     // Giả lập thời gian xử lý thanh toán của ngân hàng (2-3 giây)
     Future.delayed(const Duration(seconds: 2), () {
       if (!mounted) return;
-      
+
       // Gọi Bloc để tạo đơn hàng mới trên Supabase
       context.read<BookingBloc>().add(
         CreateBookingEvent(
-          Booking(
-            id: '', // Sẽ do Supabase tự generate
-            carId: widget.carId,
-            userId: widget.userId,
-            ownerId: widget.ownerId,
-            startDate: widget.startDate,
-            endDate: widget.endDate,
-            totalAmount: widget.totalAmount,
-            status: BookingStatus.pending,
-          )
+            Booking(
+              id: '', // Sẽ do Supabase tự generate
+              carId: widget.carId,
+              userId: widget.userId,
+              ownerId: widget.ownerId,
+              startDate: widget.startDate,
+              endDate: widget.endDate,
+              totalAmount: widget.totalAmount,
+              status: BookingStatus.pending,
+            )
         ),
       );
     });
@@ -123,8 +117,8 @@ class _VNPaySimulationPageState extends State<VNPaySimulationPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 20),
-                
-                // ⭐ Card chứa QR Code
+
+                // Card chứa QR Code
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -168,7 +162,7 @@ class _VNPaySimulationPageState extends State<VNPaySimulationPage> {
 
                       const Divider(height: 24),
 
-                      // ⭐ QR Code chính
+                      // ⭐ Hiển thị mã QR từ link mạng
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -179,23 +173,30 @@ class _VNPaySimulationPageState extends State<VNPaySimulationPage> {
                           ),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: QrImageView(
-                          data: _qrData,
-                          version: QrVersions.auto,
-                          size: 280.0,
-                          gapless: false,
-                          errorCorrectionLevel: QrErrorCorrectLevel.H,
-                          semanticsLabel: 'VietQR Payment Code',
-                          errorBuilder: (context, error) {
-                            return Container(
+                        child: Image.network(
+                          _vietQrUrl,
+                          width: 280,
+                          height: 280,
+                          fit: BoxFit.contain,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return const SizedBox(
                               width: 280,
                               height: 280,
-                              color: Colors.grey[200],
+                              child: Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            return SizedBox(
+                              width: 280,
+                              height: 280,
                               child: Center(
                                 child: Text(
-                                  'QR Error\n${error.toString()}',
+                                  'Không thể tải mã QR.\nVui lòng kiểm tra kết nối mạng.',
                                   textAlign: TextAlign.center,
-                                  style: const TextStyle(fontSize: 12),
+                                  style: TextStyle(color: Colors.red[700]),
                                 ),
                               ),
                             );
@@ -271,7 +272,7 @@ class _VNPaySimulationPageState extends State<VNPaySimulationPage> {
 
                 const SizedBox(height: 28),
 
-                // ⭐ Nút thanh toán
+                // Nút thanh toán
                 SizedBox(
                   width: double.infinity,
                   height: 54,
@@ -287,27 +288,27 @@ class _VNPaySimulationPageState extends State<VNPaySimulationPage> {
                     ),
                     child: _isProcessing
                         ? const SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 3,
-                            ),
-                          )
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 3,
+                      ),
+                    )
                         : const Text(
-                            'ĐÃ THANH TOÁN THÀNH CÔNG',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
+                      'ĐÃ THANH TOÁN THÀNH CÔNG',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
                   ),
                 ),
 
                 const SizedBox(height: 20),
 
-                // ⭐ Hướng dẫn sử dụng
+                // Hướng dẫn sử dụng
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -339,11 +340,11 @@ class _VNPaySimulationPageState extends State<VNPaySimulationPage> {
                       const SizedBox(height: 12),
                       Text(
                         '📱 Mở app ngân hàng:\n'
-                        '   VietcomBank, MB Bank, Techcombank...\n\n'
-                        '🔍 Chọn "Quét QR" hoặc "Thanh toán QR"\n\n'
-                        '📷 Quét mã QR bên trên\n\n'
-                        '✅ Xác nhận số tiền và OTP\n\n'
-                        '🎉 Giao dịch hoàn tất!',
+                            '   VietcomBank, MB Bank, Techcombank...\n\n'
+                            '🔍 Chọn "Quét QR" hoặc "Thanh toán QR"\n\n'
+                            '📷 Quét mã QR bên trên\n\n'
+                            '✅ Xác nhận số tiền và OTP\n\n'
+                            '🎉 Giao dịch hoàn tất!',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey[700],
@@ -363,15 +364,14 @@ class _VNPaySimulationPageState extends State<VNPaySimulationPage> {
     );
   }
 
-  /// Widget hiển thị thông tin (label - value)
   Widget _buildInfoRow(
-    String label,
-    String value,
-    Color? valueColor, {
-    double fontSize = 12,
-    FontWeight fontWeight = FontWeight.normal,
-    String? fontFamily,
-  }) {
+      String label,
+      String value,
+      Color? valueColor, {
+        double fontSize = 12,
+        FontWeight fontWeight = FontWeight.normal,
+        String? fontFamily,
+      }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
