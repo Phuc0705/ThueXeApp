@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
@@ -22,3 +23,29 @@ class RegisterUseCase implements UseCase<UserEntity, RegisterParams> {
     return await repository.register(params.email, params.password, params.fullName);
   }
 }
+=======
+import 'package:dartz/dartz.dart';
+import '../../../../core/error/failures.dart';
+import '../../../../core/usecases/usecase.dart';
+import '../entities/user_entity.dart';
+import '../repositories/auth_repository.dart';
+
+class RegisterParams {
+  final String email;
+  final String password;
+  final String fullName;
+
+  RegisterParams({required this.email, required this.password, required this.fullName});
+}
+
+class RegisterUseCase implements UseCase<UserEntity, RegisterParams> {
+  final AuthRepository repository;
+
+  RegisterUseCase(this.repository);
+
+  @override
+  Future<Either<Failure, UserEntity>> call(RegisterParams params) async {
+    return await repository.register(params.email, params.password, params.fullName);
+  }
+}
+>>>>>>> f0af26a1d67233fd92118103d33087d2a9916b90

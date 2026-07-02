@@ -1,6 +1,15 @@
+<<<<<<< HEAD
 import Flutter
 import UIKit
 
 class SceneDelegate: FlutterSceneDelegate {
 
 }
+=======
+import Flutter
+import UIKit
+
+class SceneDelegate: FlutterSceneDelegate {
+
+}
+>>>>>>> f0af26a1d67233fd92118103d33087d2a9916b90
