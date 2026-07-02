@@ -17,6 +17,18 @@ class _RegisterPageState extends State<RegisterPage> {
   final _passwordController = TextEditingController();
   final _nameController = TextEditingController();
 
+  void _submit() {
+    if (_formKey.currentState!.validate()) {
+      context.read<AuthBloc>().add(
+            RegisterSubmitted(
+              email: _emailController.text,
+              password: _passwordController.text,
+              fullName: _nameController.text,
+            ),
+          );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,6 +54,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   TextFormField(
                     controller: _nameController,
                     decoration: const InputDecoration(labelText: 'Họ và tên'),
+                    textInputAction: TextInputAction.next,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return 'Vui lòng nhập họ tên';
@@ -53,6 +66,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     controller: _emailController,
                     decoration: const InputDecoration(labelText: 'Email'),
                     keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.next,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Vui lòng nhập email';
@@ -68,6 +82,8 @@ class _RegisterPageState extends State<RegisterPage> {
                     controller: _passwordController,
                     decoration: const InputDecoration(labelText: 'Mật khẩu'),
                     obscureText: true,
+                    textInputAction: TextInputAction.done,
+                    onFieldSubmitted: (_) => _submit(),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Vui lòng nhập mật khẩu';
@@ -83,17 +99,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     const CircularProgressIndicator()
                   else
                     ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          context.read<AuthBloc>().add(
-                                RegisterSubmitted(
-                                  email: _emailController.text,
-                                  password: _passwordController.text,
-                                  fullName: _nameController.text,
-                                ),
-                              );
-                        }
-                      },
+                      onPressed: _submit,
                       child: const Text('Đăng ký'),
                     ),
                 ],
