@@ -36,18 +36,7 @@ class ProfilePage extends StatelessWidget {
                   const SizedBox(height: 16),
                   Text(user.fullName, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                   Text(user.email, style: TextStyle(color: Colors.grey[600])),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: _getRoleColor(user.role).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      _getRoleName(user.role),
-                      style: TextStyle(color: _getRoleColor(user.role), fontWeight: FontWeight.bold),
-                    ),
-                  ),
+
                   const SizedBox(height: 32),
                   
                   _ProfileMenuTile(
@@ -64,7 +53,7 @@ class ProfilePage extends StatelessWidget {
                       padding: EdgeInsets.symmetric(vertical: 8.0),
                       child: Text('DÀNH CHO CHỦ XE', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
                     ),
-                    _ProfileMenuTile(icon: Icons.add_a_photo, title: 'Đăng ký xe cho thuê (Trở thành Chủ xe)', 
+                    _ProfileMenuTile(icon: Icons.add_a_photo, title: 'Đăng ký xe cho thuê ',
                       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddCarPage()))),
                   ],
                   if (user.role == UserRole.owner) ...[
