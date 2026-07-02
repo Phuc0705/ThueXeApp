@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
@@ -15,21 +14,3 @@ class GetMyBookings implements UseCase<List<Booking>, String> {
     return await repository.getMyBookings(params);
   }
 }
-=======
-import 'package:dartz/dartz.dart';
-import '../../../../core/error/failures.dart';
-import '../../../../core/usecases/usecase.dart';
-import '../entities/booking.dart';
-import '../repositories/booking_repository.dart';
-
-class GetMyBookings implements UseCase<List<Booking>, String> {
-  final BookingRepository repository;
-
-  GetMyBookings(this.repository);
-
-  @override
-  Future<Either<Failure, List<Booking>>> call(String params) async {
-    return await repository.getMyBookings(params);
-  }
-}
->>>>>>> f0af26a1d67233fd92118103d33087d2a9916b90
