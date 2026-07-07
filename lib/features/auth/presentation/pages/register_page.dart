@@ -33,6 +33,18 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
+  void _submit() {
+    if (_formKey.currentState!.validate()) {
+      context.read<AuthBloc>().add(
+            RegisterSubmitted(
+              email: _emailController.text,
+              password: _passwordController.text,
+              fullName: _nameController.text,
+            ),
+          );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
