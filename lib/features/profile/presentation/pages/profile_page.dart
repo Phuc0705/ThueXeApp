@@ -7,11 +7,10 @@ import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../booking/presentation/pages/booking_history_page.dart';
 import '../../../owner/presentation/pages/add_car_page.dart';
 import '../../../owner/presentation/pages/my_cars_page.dart';
-import '../../../owner/presentation/pages/manage_bookings_page.dart';
-import '../../../owner/presentation/pages/revenue_page.dart';
 import '../../../admin/presentation/pages/admin_dashboard_page.dart';
 import '../../../admin/presentation/pages/user_management_page.dart';
 import '../../../admin/presentation/pages/system_car_approval_page.dart';
+import 'edit_profile_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -40,6 +39,15 @@ class ProfilePage extends StatelessWidget {
                   const SizedBox(height: 32),
                   
                   _ProfileMenuTile(
+                    icon: Icons.edit,
+                    title: 'Chỉnh sửa thông tin cá nhân',
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfilePage()));
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  _ProfileMenuTile(
                     icon: Icons.history,
                     title: 'Lịch sử thuê xe',
                     onTap: () {
@@ -47,22 +55,16 @@ class ProfilePage extends StatelessWidget {
                     },
                   ),
 
-                  if (user.role == UserRole.owner || user.role == UserRole.customer) ...[
+                  if (user.role == UserRole.user) ...[
                     const Divider(),
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 8.0),
-                      child: Text('DÀNH CHO CHỦ XE', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                      child: Text('CHO THUÊ XE', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
                     ),
                     _ProfileMenuTile(icon: Icons.add_a_photo, title: 'Đăng ký xe cho thuê ',
                       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddCarPage()))),
-                  ],
-                  if (user.role == UserRole.owner) ...[
                     _ProfileMenuTile(icon: Icons.list_alt, title: 'Danh sách xe của tôi', 
                       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MyCarsPage()))),
-                    _ProfileMenuTile(icon: Icons.assignment, title: 'Quản lý đơn đặt xe', 
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageBookingsPage()))),
-                    _ProfileMenuTile(icon: Icons.bar_chart, title: 'Xem doanh thu', 
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RevenuePage()))),
                   ],
 
                   if (user.role == UserRole.admin) ...[
@@ -102,16 +104,14 @@ class ProfilePage extends StatelessWidget {
   String _getRoleName(UserRole role) {
     switch (role) {
       case UserRole.admin: return 'Quản trị viên';
-      case UserRole.owner: return 'Chủ xe';
-      case UserRole.customer: return 'Khách hàng';
+      case UserRole.user: return 'Người dùng';
     }
   }
 
   Color _getRoleColor(UserRole role) {
     switch (role) {
       case UserRole.admin: return Colors.purple;
-      case UserRole.owner: return Colors.orange;
-      case UserRole.customer: return Colors.blue;
+      case UserRole.user: return Colors.blue;
     }
   }
 }

@@ -79,11 +79,30 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 20),
                   if (state is AuthLoading)
                     const CircularProgressIndicator()
-                  else
+                  else ...[
                     ElevatedButton(
                       onPressed: _submit,
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 45),
+                      ),
                       child: const Text('Đăng nhập'),
                     ),
+                    const SizedBox(height: 12),
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        context.read<AuthBloc>().add(LoginWithGoogleRequested());
+                      },
+                      icon: Image.network(
+                        'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/120px-Google_%22G%22_logo.svg.png',
+                        height: 24,
+                      ),
+                      label: const Text('Đăng nhập bằng Google', style: TextStyle(color: Colors.black87)),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 45),
+                        backgroundColor: Colors.white,
+                      ),
+                    ),
+                  ],
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).push(

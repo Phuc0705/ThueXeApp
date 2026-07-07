@@ -5,10 +5,10 @@ import 'features/auth/presentation/bloc/auth_event.dart';
 import 'features/car_browsing/presentation/bloc/car_bloc.dart';
 import 'features/car_browsing/presentation/bloc/car_event.dart';
 import 'features/booking/presentation/bloc/booking_bloc.dart';
-import 'features/car_browsing/presentation/pages/car_list_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'injection_container.dart' as di;
+import 'root_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,7 +49,7 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           scaffoldBackgroundColor: Colors.grey[50],
         ),
-        home: const CarListScreen(),
+        home: const RootPage(),
       ),
     );
   }

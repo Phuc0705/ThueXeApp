@@ -4,8 +4,9 @@ import '../../domain/entities/user_entity.dart';
 
 abstract class AuthRemoteDataSource {
   Future<UserModel> login(String email, String password);
-  Future<UserModel> register(String email, String password, String fullName);
+  Future<UserModel> register(String email, String password, String fullName, String? phone, String? idCard);
   Future<void> logout();
+  Future<void> loginWithGoogle();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -31,7 +32,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<UserModel> register(String email, String password, String fullName) async {
+  Future<UserModel> register(String email, String password, String fullName, String? phone, String? idCard) async {
     final response = await supabase.auth.signUp(
       email: email,
       password: password,
@@ -44,6 +45,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       'email': email,
       'full_name': fullName,
       'role': 'customer',
+      'phone': phone,
+      'id_card': idCard,
     };
     
     await supabase.from('profiles').insert(profileData);
@@ -54,5 +57,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> logout() async {
     await supabase.auth.signOut();
+  }
+
+  @override
+  Future<void> loginWithGoogle() async {
+    await supabase.auth.signInWithOAuth(OAuthProvider.google);
   }
 }

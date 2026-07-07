@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_event.dart';
+import 'user_management_page.dart';
+import 'system_car_approval_page.dart';
 
 class AdminDashboardPage extends StatelessWidget {
   const AdminDashboardPage({super.key});
@@ -6,12 +11,42 @@ class AdminDashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Admin Dashboard')),
+      appBar: AppBar(
+        title: const Text('Admin Dashboard'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              context.read<AuthBloc>().add(LogoutRequested());
+            },
+          )
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const Text('Tính năng quản trị', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UserManagementPage())),
+                    child: _StatCard(title: 'Người dùng', value: 'Quản lý', color: Colors.blue, icon: Icons.people),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: InkWell(
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SystemCarApprovalPage())),
+                    child: _StatCard(title: 'Đơn đặt xe', value: 'Quản lý', color: Colors.orange, icon: Icons.assignment),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 32),
             const Text('Thống kê tổng quan', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             GridView.count(
