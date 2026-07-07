@@ -21,9 +21,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, UserEntity>> register(String email, String password, String fullName) async {
+  Future<Either<Failure, UserEntity>> register(String email, String password, String fullName, String? phone, String? idCard) async {
     try {
-      final user = await remoteDataSource.register(email, password, fullName);
+      final user = await remoteDataSource.register(email, password, fullName, phone, idCard);
       return Right(user);
     } catch (e) {
       if (e.toString().contains('violates row-level security')) {
@@ -44,6 +44,16 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, void>> loginWithGoogle() async {
+    try {
+      await remoteDataSource.loginWithGoogle();
+      return const Right(null);
+    } catch (e) {
+      return const Left(ServerFailure('Lỗi khi đăng nhập bằng Google.'));
+    }
+  }
+
+  @override
   Future<Either<Failure, UserEntity?>> getCurrentUser() async {
     try {
       final supabase = (remoteDataSource as AuthRemoteDataSourceImpl).supabase;
@@ -54,8 +64,27 @@ class AuthRepositoryImpl implements AuthRepository {
             .from('profiles')
             .select()
             .eq('id', session.user.id)
-            .single();
-        return Right(UserModel.fromJson(profile));
+            .maybeSingle();
+            
+        if (profile != null) {
+          return Right(UserModel.fromJson(profile));
+        } else {
+          // Tạo profile nếu người dùng đăng nhập bằng Google lần đầu chưa có profile
+          final user = session.user!;
+          final metadata = user.userMetadata;
+          final fullName = metadata?['full_name'] ?? metadata?['name'] ?? user.email?.split('@').first ?? 'Google User';
+          final email = user.email ?? '';
+          
+          final profileData = {
+            'id': user.id,
+            'email': email,
+            'full_name': fullName,
+            'role': 'customer',
+          };
+          
+          await supabase.from('profiles').insert(profileData);
+          return Right(UserModel.fromJson(profileData));
+        }
       }
       return const Right(null);
     } catch (e) {

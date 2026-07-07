@@ -4,7 +4,7 @@ abstract class AuthEvent extends Equatable {
   const AuthEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 class LoginSubmitted extends AuthEvent {
@@ -14,24 +14,30 @@ class LoginSubmitted extends AuthEvent {
   const LoginSubmitted({required this.email, required this.password});
 
   @override
-  List<Object> get props => [email, password];
+  List<Object?> get props => [email, password];
 }
 
 class RegisterSubmitted extends AuthEvent {
   final String email;
   final String password;
   final String fullName;
+  final String? phoneNumber;
+  final String? idCard;
 
   const RegisterSubmitted({
     required this.email,
     required this.password,
     required this.fullName,
+    this.phoneNumber,
+    this.idCard,
   });
 
   @override
-  List<Object> get props => [email, password, fullName];
+  List<Object?> get props => [email, password, fullName, phoneNumber, idCard];
 }
 
 class LogoutRequested extends AuthEvent {}
+
+class LoginWithGoogleRequested extends AuthEvent {}
 
 class CheckAuthStatus extends AuthEvent {}

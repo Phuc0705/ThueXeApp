@@ -8,8 +8,16 @@ class RegisterParams {
   final String email;
   final String password;
   final String fullName;
+  final String? phoneNumber;
+  final String? idCard;
 
-  RegisterParams({required this.email, required this.password, required this.fullName});
+  RegisterParams({
+    required this.email, 
+    required this.password, 
+    required this.fullName,
+    this.phoneNumber,
+    this.idCard,
+  });
 }
 
 class RegisterUseCase implements UseCase<UserEntity, RegisterParams> {
@@ -19,6 +27,12 @@ class RegisterUseCase implements UseCase<UserEntity, RegisterParams> {
 
   @override
   Future<Either<Failure, UserEntity>> call(RegisterParams params) async {
-    return await repository.register(params.email, params.password, params.fullName);
+    return await repository.register(
+      params.email, 
+      params.password, 
+      params.fullName,
+      params.phoneNumber,
+      params.idCard,
+    );
   }
 }

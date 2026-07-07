@@ -19,19 +19,23 @@ class _AddCarPageState extends State<AddCarPage> {
   String _selectedType = 'Sedan';
   
   XFile? _carImage;
-  XFile? _documentImage;
+  XFile? _docFrontImage;
+  XFile? _docBackImage;
   bool _isUploading = false;
 
   final ImagePicker _picker = ImagePicker();
 
-  Future<void> _pickImage(bool isDocument) async {
+  // type: 0 = car, 1 = doc front, 2 = doc back
+  Future<void> _pickImage(int type) async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
       setState(() {
-        if (isDocument) {
-          _documentImage = image;
-        } else {
+        if (type == 0) {
           _carImage = image;
+        } else if (type == 1) {
+          _docFrontImage = image;
+        } else if (type == 2) {
+          _docBackImage = image;
         }
       });
     }
@@ -43,8 +47,12 @@ class _AddCarPageState extends State<AddCarPage> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vui lòng chọn ảnh xe')));
       return;
     }
-    if (_documentImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vui lòng tải lên giấy tờ xe (eKYC)')));
+    if (_docFrontImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vui lòng tải lên mặt trước giấy tờ xe')));
+      return;
+    }
+    if (_docBackImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vui lòng tải lên mặt sau giấy tờ xe')));
       return;
     }
 
@@ -62,12 +70,19 @@ class _AddCarPageState extends State<AddCarPage> {
       await supabase.storage.from('cars').uploadBinary(carFileName, carBytes);
       final carUrl = supabase.storage.from('cars').getPublicUrl(carFileName);
 
-      // Upload giấy tờ xe
-      final docExt = _documentImage!.path.split('.').last;
-      final docFileName = 'doc_${DateTime.now().millisecondsSinceEpoch}.$docExt';
-      final docBytes = await _documentImage!.readAsBytes();
-      await supabase.storage.from('cars').uploadBinary(docFileName, docBytes);
-      final docUrl = supabase.storage.from('cars').getPublicUrl(docFileName);
+      // Upload giấy tờ xe mặt trước
+      final docFrontExt = _docFrontImage!.path.split('.').last;
+      final docFrontFileName = 'doc_front_${DateTime.now().millisecondsSinceEpoch}.$docFrontExt';
+      final docFrontBytes = await _docFrontImage!.readAsBytes();
+      await supabase.storage.from('cars').uploadBinary(docFrontFileName, docFrontBytes);
+      final docFrontUrl = supabase.storage.from('cars').getPublicUrl(docFrontFileName);
+
+      // Upload giấy tờ xe mặt sau
+      final docBackExt = _docBackImage!.path.split('.').last;
+      final docBackFileName = 'doc_back_${DateTime.now().millisecondsSinceEpoch}.$docBackExt';
+      final docBackBytes = await _docBackImage!.readAsBytes();
+      await supabase.storage.from('cars').uploadBinary(docBackFileName, docBackBytes);
+      final docBackUrl = supabase.storage.from('cars').getPublicUrl(docBackFileName);
 
       // Insert vào bảng cars
       await supabase.from('cars').insert({
@@ -77,7 +92,7 @@ class _AddCarPageState extends State<AddCarPage> {
         'type': _selectedType,
         'price_per_day': double.parse(_priceController.text),
         'image_urls': [carUrl], // Mảng chứa URL ảnh xe
-        // 'document_urls': [docUrl], // Tạm comment lại để tránh lỗi nếu chưa tạo cột trên Supabase
+        'document_urls': [docFrontUrl, docBackUrl], // Đã bỏ comment để lưu lên Supabase
         'status': 'available', // Cho phép hiển thị luôn để dễ test
         'fuel_type': 'Xăng', 
         'transmission': 'Số tự động',
@@ -96,14 +111,14 @@ class _AddCarPageState extends State<AddCarPage> {
     }
   }
 
-  Widget _buildImagePicker(String title, XFile? file, bool isDocument) {
+  Widget _buildImagePicker(String title, XFile? file, int type) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         InkWell(
-          onTap: () => _pickImage(isDocument),
+          onTap: () => _pickImage(type),
           child: Container(
             height: 150,
             width: double.infinity,
@@ -172,9 +187,19 @@ class _AddCarPageState extends State<AddCarPage> {
                 validator: (v) => v!.isEmpty ? 'Vui lòng nhập giá' : null,
               ),
               const SizedBox(height: 24),
-              _buildImagePicker('Hình ảnh xe', _carImage, false),
+              _buildImagePicker('Hình ảnh xe', _carImage, 0),
               const SizedBox(height: 24),
-              _buildImagePicker('Giấy tờ xe (eKYC)', _documentImage, true),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildImagePicker('Mặt trước giấy tờ', _docFrontImage, 1),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildImagePicker('Mặt sau giấy tờ', _docBackImage, 2),
+                  ),
+                ],
+              ),
               const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,

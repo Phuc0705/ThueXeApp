@@ -7,6 +7,7 @@ class UserModel extends UserEntity {
     required super.fullName,
     required super.role,
     super.phoneNumber,
+    super.idCard,
     super.avatarUrl,
   });
 
@@ -15,13 +16,16 @@ class UserModel extends UserEntity {
       id: json['id'],
       email: json['email'],
       fullName: json['full_name'] ?? json['fullName'] ?? '',
-      role: UserRole.values.firstWhere(
-        (e) => e.toString().split('.').last == json['role'],
-        orElse: () => UserRole.customer,
-      ),
+      role: _parseRole(json['role']),
       phoneNumber: json['phone'] ?? json['phoneNumber'],
+      idCard: json['id_card'] ?? json['idCard'],
       avatarUrl: json['avatar_url'] ?? json['avatarUrl'],
     );
+  }
+
+  static UserRole _parseRole(dynamic role) {
+    if (role == 'admin') return UserRole.admin;
+    return UserRole.user; // Mặc định tất cả (customer, owner) đều thành user
   }
 
   Map<String, dynamic> toJson() {
@@ -31,6 +35,7 @@ class UserModel extends UserEntity {
       'full_name': fullName,
       'role': role.toString().split('.').last,
       'phone': phoneNumber,
+      'id_card': idCard,
       'avatar_url': avatarUrl,
     };
   }

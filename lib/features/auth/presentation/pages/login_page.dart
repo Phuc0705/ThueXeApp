@@ -79,11 +79,12 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 20),
                   if (state is AuthLoading)
                     const CircularProgressIndicator()
-                  else
+                  else ...[
                     ElevatedButton(
                       onPressed: _submit,
                       child: const Text('Đăng nhập'),
                     ),
+                  ],
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).push(

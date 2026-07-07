@@ -16,6 +16,22 @@ class _RegisterPageState extends State<RegisterPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _cccdController = TextEditingController();
+
+  void _submit() {
+    if (_formKey.currentState!.validate()) {
+      context.read<AuthBloc>().add(
+            RegisterSubmitted(
+              email: _emailController.text,
+              password: _passwordController.text,
+              fullName: _nameController.text,
+              phoneNumber: _phoneController.text.trim().isEmpty ? null : _phoneController.text,
+              idCard: _cccdController.text.trim().isEmpty ? null : _cccdController.text,
+            ),
+          );
+    }
+  }
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
@@ -58,6 +74,36 @@ class _RegisterPageState extends State<RegisterPage> {
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return 'Vui lòng nhập họ tên';
+                      }
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: _phoneController,
+                    decoration: const InputDecoration(labelText: 'Số điện thoại'),
+                    keyboardType: TextInputType.phone,
+                    textInputAction: TextInputAction.next,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Vui lòng nhập số điện thoại';
+                      }
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: _cccdController,
+                    decoration: const InputDecoration(labelText: 'Căn cước công dân (CCCD)'),
+                    keyboardType: TextInputType.number,
+                    textInputAction: TextInputAction.next,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Vui lòng nhập căn cước công dân';
+                      }
+                      if (value.trim().length != 12) {
+                        return 'CCCD phải bao gồm đúng 12 số';
+                      }
+                      if (RegExp(r'^[0-9]+$').hasMatch(value.trim()) == false) {
+                        return 'CCCD chỉ được chứa số';
                       }
                       return null;
                     },

@@ -4,6 +4,7 @@ import '../../domain/entities/car.dart';
 import '../../../booking/presentation/pages/booking_page.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
+import '../../../auth/domain/entities/user_entity.dart';
 import '../../../auth/presentation/pages/login_page.dart';
 
 class CarDetailScreen extends StatelessWidget {
@@ -103,7 +104,13 @@ class CarDetailScreen extends StatelessWidget {
                   return ElevatedButton(
                     onPressed: car.isAvailable ? () {
                       if (authState is Authenticated) {
-                        // Đã đăng nhập -> Cho phép vào trang đặt xe
+                        if (authState.user.role == UserRole.admin) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Quản trị viên không thể thực hiện đặt xe')),
+                          );
+                          return;
+                        }
+                        // Đã đăng nhập và là user -> Cho phép vào trang đặt xe
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => BookingPage(car: car)),
