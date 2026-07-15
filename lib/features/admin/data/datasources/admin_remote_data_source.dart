@@ -6,7 +6,7 @@ import '../../../booking/domain/entities/booking.dart';
 abstract class AdminRemoteDataSource {
   Future<Map<String, dynamic>> getDashboardStats();
   Future<List<UserModel>> getAllUsers();
-  Future<void> updateUserInfo(String userId, String name, String phone);
+  Future<void> updateUserInfo(String userId, String name, String phone, String idCard);
   Future<void> deleteUser(String userId);
   Future<void> changeUserRole(String userId, String role);
   Future<List<BookingModel>> getAllBookings();
