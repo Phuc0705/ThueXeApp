@@ -15,26 +15,12 @@ class UpdateUserInfo extends AdminEvent {
   final String userId;
   final String name;
   final String phone;
+  final String idCard;
 
-  const UpdateUserInfo(this.userId, this.name, this.phone);
+  const UpdateUserInfo(this.userId, this.name, this.phone, this.idCard);
 
   @override
-  List<Object> get props => [userId, name, phone];
-}
-
-class DeleteUserEvent extends AdminEvent {
-  final String userId;
-  const DeleteUserEvent(this.userId);
-  @override
-  List<Object> get props => [userId];
-}
-
-class ChangeUserRoleEvent extends AdminEvent {
-  final String userId;
-  final String role;
-  const ChangeUserRoleEvent(this.userId, this.role);
-  @override
-  List<Object> get props => [userId, role];
+  List<Object> get props => [userId, name, phone, idCard];
 }
 
 class FetchAllBookings extends AdminEvent {}
@@ -47,16 +33,4 @@ class UpdateBookingStatusEvent extends AdminEvent {
 
   @override
   List<Object> get props => [bookingId, status];
-}
-
-class FetchPendingCars extends AdminEvent {}
-
-class ApproveCarEvent extends AdminEvent {
-  final String carId;
-  final bool isApproved;
-
-  const ApproveCarEvent(this.carId, this.isApproved);
-
-  @override
-  List<Object> get props => [carId, isApproved];
 }

@@ -22,6 +22,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
   void _showEditUserDialog(UserEntity user) {
     final nameController = TextEditingController(text: user.fullName);
     final phoneController = TextEditingController(text: user.phoneNumber ?? '');
+    final cccdController = TextEditingController(text: user.idCard ?? '');
 
     showDialog(
       context: context,
@@ -33,6 +34,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
             children: [
               TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Họ tên')),
               TextField(controller: phoneController, decoration: const InputDecoration(labelText: 'Số điện thoại')),
+              TextField(controller: cccdController, decoration: const InputDecoration(labelText: 'CCCD')),
             ],
           ),
           actions: [
@@ -44,6 +46,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                         user.id,
                         nameController.text,
                         phoneController.text,
+                        cccdController.text,
                       ),
                     );
                 Navigator.pop(ctx);
@@ -97,20 +100,10 @@ class _UserManagementPageState extends State<UserManagementPage> {
                   trailing: PopupMenuButton(
                     itemBuilder: (context) => [
                       const PopupMenuItem(value: 'edit', child: Text('Chỉnh sửa thông tin')),
-                      const PopupMenuItem(value: 'delete', child: Text('Xóa tài khoản', style: TextStyle(color: Colors.red))),
-                      PopupMenuItem(
-                        value: 'change_role', 
-                        child: Text(user.role == UserRole.admin ? 'Hạ quyền thành User' : 'Nâng quyền thành Admin'),
-                      ),
                     ],
                     onSelected: (value) {
                       if (value == 'edit') {
                         _showEditUserDialog(user);
-                      } else if (value == 'delete') {
-                        _showDeleteConfirmDialog(user);
-                      } else if (value == 'change_role') {
-                        final newRole = user.role == UserRole.admin ? 'user' : 'admin';
-                        context.read<AdminBloc>().add(ChangeUserRoleEvent(user.id, newRole));
                       }
                     },
                   ),
@@ -129,26 +122,5 @@ class _UserManagementPageState extends State<UserManagementPage> {
       case UserRole.admin: return 'Admin';
       case UserRole.user: return 'Người dùng';
     }
-  }
-
-  void _showDeleteConfirmDialog(UserEntity user) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Xác nhận xóa'),
-        content: Text('Bạn có chắc chắn muốn xóa người dùng ${user.fullName} không? Hành động này không thể hoàn tác.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Hủy')),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () {
-              context.read<AdminBloc>().add(DeleteUserEvent(user.id));
-              Navigator.pop(ctx);
-            },
-            child: const Text('Xóa', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
   }
 }

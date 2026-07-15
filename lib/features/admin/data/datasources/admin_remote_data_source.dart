@@ -6,13 +6,9 @@ import '../../../booking/domain/entities/booking.dart';
 abstract class AdminRemoteDataSource {
   Future<Map<String, dynamic>> getDashboardStats();
   Future<List<UserModel>> getAllUsers();
-  Future<void> updateUserInfo(String userId, String name, String phone);
-  Future<void> deleteUser(String userId);
-  Future<void> changeUserRole(String userId, String role);
+  Future<UserModel> updateUserInfo(String userId, String name, String phone, String idCard);
   Future<List<BookingModel>> getAllBookings();
   Future<BookingModel> updateBookingStatus(String bookingId, BookingStatus status);
-  Future<List<Map<String, dynamic>>> getPendingCars();
-  Future<void> approveCar(String carId, bool isApproved);
 }
 
 class AdminRemoteDataSourceImpl implements AdminRemoteDataSource {
@@ -58,27 +54,18 @@ class AdminRemoteDataSourceImpl implements AdminRemoteDataSource {
   }
 
   @override
-  Future<void> updateUserInfo(String userId, String name, String phone) async {
-    await supabase
+  Future<UserModel> updateUserInfo(String userId, String name, String phone, String idCard) async {
+    final response = await supabase
         .from('profiles')
         .update({
           'full_name': name,
           'phone': phone,
+          'id_card': idCard,
         })
-        .eq('id', userId);
-  }
-
-  @override
-  Future<void> deleteUser(String userId) async {
-    await supabase.from('profiles').delete().eq('id', userId);
-  }
-
-  @override
-  Future<void> changeUserRole(String userId, String role) async {
-    await supabase
-        .from('profiles')
-        .update({'role': role})
-        .eq('id', userId);
+        .eq('id', userId)
+        .select()
+        .single();
+    return UserModel.fromJson(response);
   }
 
   @override
@@ -109,21 +96,5 @@ class AdminRemoteDataSourceImpl implements AdminRemoteDataSource {
         .single();
     
     return BookingModel.fromJson(response);
-  }
-
-  @override
-  Future<List<Map<String, dynamic>>> getPendingCars() async {
-    final response = await supabase
-        .from('cars')
-        .select()
-        .eq('status', 'pending')
-        .order('created_at', ascending: false);
-    return List<Map<String, dynamic>>.from(response);
-  }
-
-  @override
-  Future<void> approveCar(String carId, bool isApproved) async {
-    final status = isApproved ? 'available' : 'rejected';
-    await supabase.from('cars').update({'status': status}).eq('id', carId);
   }
 }

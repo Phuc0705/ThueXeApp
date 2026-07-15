@@ -14,9 +14,14 @@ class AddCarPage extends StatefulWidget {
 class _AddCarPageState extends State<AddCarPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _brandController = TextEditingController();
   final _priceController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  
+  String _selectedBrand = 'Toyota';
   String _selectedType = 'Sedan';
+  String _selectedTransmission = 'Số tự động';
+  String _selectedDistrict = 'Quận 1';
+  String _selectedMethod = 'Tự nhận xe';
   
   XFile? _carImage;
   XFile? _docFrontImage;
@@ -88,14 +93,18 @@ class _AddCarPageState extends State<AddCarPage> {
       await supabase.from('cars').insert({
         'owner_id': userId,
         'name': _nameController.text,
-        'brand': _brandController.text,
+        'brand': _selectedBrand,
         'type': _selectedType,
         'price_per_day': double.parse(_priceController.text),
-        'image_urls': [carUrl], // Mảng chứa URL ảnh xe
-        'document_urls': [docFrontUrl, docBackUrl],
-        'status': 'pending', // Chờ duyệt
+        'description': _descriptionController.text,
+        'image_urls': [carUrl], 
+        'document_urls': [docFrontUrl, docBackUrl], 
+        'status': 'available', 
         'fuel_type': 'Xăng', 
-        'transmission': 'Số tự động',
+        'transmission': _selectedTransmission,
+        // Có thể thêm vào schema database sau:
+        // 'district': _selectedDistrict,
+        // 'rental_method': _selectedMethod,
       });
 
       if (!mounted) return;
@@ -164,17 +173,55 @@ class _AddCarPageState extends State<AddCarPage> {
               ),
               const SizedBox(height: 16),
               TextFormField(
-                controller: _brandController,
+                controller: _descriptionController,
+                decoration: const InputDecoration(labelText: 'Mô tả xe', border: OutlineInputBorder()),
+                maxLines: 4,
+                validator: (v) => v!.isEmpty ? 'Vui lòng nhập mô tả' : null,
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _selectedBrand,
                 decoration: const InputDecoration(labelText: 'Hãng xe', border: OutlineInputBorder()),
+                items: ['Toyota', 'Ford', 'Mercedes', 'VinFast', 'Honda', 'Mazda', 'Hyundai', 'Kia'].map((String value) {
+                  return DropdownMenuItem<String>(value: value, child: Text(value));
+                }).toList(),
+                onChanged: (v) => setState(() => _selectedBrand = v!),
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 value: _selectedType,
-                decoration: const InputDecoration(labelText: 'Loại xe', border: OutlineInputBorder()),
-                items: ['Sedan', 'SUV', 'Xe điện', 'Luxury', 'Bán tải'].map((String value) {
+                decoration: const InputDecoration(labelText: 'Kiểu dáng (Loại xe)', border: OutlineInputBorder()),
+                items: ['Sedan', 'SUV', 'Hatchback', 'CUV', 'Bán tải', 'MPV', 'Mini', 'Xe điện'].map((String value) {
                   return DropdownMenuItem<String>(value: value, child: Text(value));
                 }).toList(),
                 onChanged: (v) => setState(() => _selectedType = v!),
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _selectedTransmission,
+                decoration: const InputDecoration(labelText: 'Hộp số', border: OutlineInputBorder()),
+                items: ['Số tự động', 'Số sàn'].map((String value) {
+                  return DropdownMenuItem<String>(value: value, child: Text(value));
+                }).toList(),
+                onChanged: (v) => setState(() => _selectedTransmission = v!),
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _selectedDistrict,
+                decoration: const InputDecoration(labelText: 'Quận/Huyện', border: OutlineInputBorder()),
+                items: ['Quận 1', 'Quận 2', 'Quận 3', 'Quận 4', 'Quận 5', 'Quận 6', 'Quận 7', 'Quận 8', 'Quận 9', 'Quận 10', 'Quận 11', 'Quận 12', 'Bình Thạnh', 'Phú Nhuận', 'Thủ Đức', 'Gò Vấp', 'Tân Bình', 'Tân Phú', 'Bình Tân', 'Hóc Môn', 'Củ Chi', 'Nhà Bè', 'Bình Chánh', 'Cần Giờ'].map((String value) {
+                  return DropdownMenuItem<String>(value: value, child: Text(value));
+                }).toList(),
+                onChanged: (v) => setState(() => _selectedDistrict = v!),
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _selectedMethod,
+                decoration: const InputDecoration(labelText: 'Hình thức cho thuê', border: OutlineInputBorder()),
+                items: ['Tự nhận xe', 'Gặp chủ xe'].map((String value) {
+                  return DropdownMenuItem<String>(value: value, child: Text(value));
+                }).toList(),
+                onChanged: (v) => setState(() => _selectedMethod = v!),
               ),
               const SizedBox(height: 16),
               TextFormField(

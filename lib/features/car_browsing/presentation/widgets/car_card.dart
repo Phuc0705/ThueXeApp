@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/car.dart';
 import '../pages/car_detail_screen.dart';
+import 'booking_method_dialog.dart';
 
 class CarCard extends StatelessWidget {
   final Car car;
@@ -9,10 +10,24 @@ class CarCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+    String seats = (car.type.toLowerCase().contains('suv') || car.type.toLowerCase().contains('mpv')) ? '7' : '5';
+    String fuel = (car.type.toLowerCase().contains('electric') || car.type.toLowerCase().contains('điện')) ? 'Điện' : 
+                  (car.type.toLowerCase().contains('diesel') || car.type.toLowerCase().contains('dầu')) ? 'Dầu' : 'Xăng';
+
+    return Container(
+      width: 220,
+      margin: const EdgeInsets.only(right: 16, bottom: 8, top: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: InkWell(
         onTap: () {
           Navigator.push(
@@ -22,76 +37,141 @@ class CarCard extends StatelessWidget {
             ),
           );
         },
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
-              child: Container(
-                height: 150,
-                width: double.infinity,
-                color: Colors.grey[300],
-                child: car.imageUrl.isNotEmpty
-                    ? Image.network(
-                        car.imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => const Icon(Icons.directions_car, size: 80, color: Colors.white),
-                      )
-                    : const Icon(Icons.directions_car, size: 80, color: Colors.white),
-              ),
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                  child: Container(
+                    height: 140,
+                    width: double.infinity,
+                    color: Colors.grey[200],
+                    child: car.imageUrl.isNotEmpty
+                        ? Image.network(
+                            car.imageUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => const Icon(Icons.directions_car, size: 50, color: Colors.grey),
+                          )
+                        : const Icon(Icons.directions_car, size: 50, color: Colors.grey),
+                  ),
+                ),
+                if (!car.isAvailable)
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.red[600],
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Text(
+                        'Đã thuê',
+                        style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  )
+                else
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.blue[600],
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Text(
+                        'Có xe',
+                        style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                Positioned(
+                  bottom: 8,
+                  right: 8,
+                  child: InkWell(
+                    onTap: () => BookingMethodDialog.show(context),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: car.type.toLowerCase().contains('suv') ? const Color(0xFF8A2BE2) : Colors.blue,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.white, width: 1),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(car.type.toLowerCase().contains('suv') ? Icons.people_alt : Icons.key, color: Colors.white, size: 12),
+                          const SizedBox(width: 4),
+                          Text(
+                            car.type.toLowerCase().contains('suv') ? 'Gặp chủ xe' : 'Tự nhận xe',
+                            style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Text(
+                    '${car.brand} ${car.name}',
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      const Icon(Icons.pin_drop_outlined, size: 12, color: Colors.grey),
+                      const SizedBox(width: 4),
                       Text(
-                        car.name,
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: car.isAvailable ? Colors.green[100] : Colors.red[100],
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          car.isAvailable ? 'Sẵn sàng' : 'Đã thuê',
-                          style: TextStyle(
-                            color: car.isAvailable ? Colors.green[700] : Colors.red[700],
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        'Quận 1', // Mock data
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${car.brand} • ${car.type}',
-                    style: TextStyle(color: Colors.grey[600]),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: [
+                      _buildInfoChip(Icons.group_outlined, seats),
+                      _buildInfoChip(Icons.auto_mode, 'Tự động'),
+                      _buildInfoChip(fuel == 'Điện' ? Icons.electric_car : Icons.local_gas_station_outlined, fuel),
+                    ],
                   ),
                   const SizedBox(height: 12),
+                  const Divider(height: 1),
+                  const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        '\$${car.pricePerDay.toStringAsFixed(0)}',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${car.pricePerDay.toStringAsFixed(0)}K',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue,
+                            ),
+                          ),
+                          Text(
+                            '/ngày',
+                            style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                          ),
+                        ],
                       ),
-                      const Text(
-                        ' / ngày',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                      const Spacer(),
                       ElevatedButton(
                         onPressed: car.isAvailable ? () {
                           Navigator.push(
@@ -102,9 +182,15 @@ class CarCard extends StatelessWidget {
                           );
                         } : null,
                         style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                          minimumSize: const Size(0, 30),
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.blue,
+                          side: const BorderSide(color: Colors.blue),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          elevation: 0,
                         ),
-                        child: const Text('Chi tiết'),
+                        child: const Text('Chi tiết', style: TextStyle(fontSize: 12)),
                       ),
                     ],
                   ),
@@ -116,4 +202,26 @@ class CarCard extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildInfoChip(IconData icon, String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 10, color: Colors.grey[700]),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(fontSize: 10, color: Colors.grey[700]),
+          ),
+        ],
+      ),
+    );
+  }
 }
+

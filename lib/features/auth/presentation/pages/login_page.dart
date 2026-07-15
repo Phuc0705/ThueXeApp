@@ -89,20 +89,10 @@ class _LoginPageState extends State<LoginPage> {
                       onPressed: () {
                         context.read<AuthBloc>().add(LoginWithGoogleRequested());
                       },
-                      icon: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Text(
-                          'G',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: Colors.blue,
-                          ),
-                        ),
+                      icon: Image.network(
+                        'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/120px-Google_%22G%22_logo.svg.png',
+                        height: 24,
+                        errorBuilder: (context, error, stackTrace) => const Icon(Icons.g_mobiledata, size: 24, color: Colors.blue),
                       ),
                       label: const Text('Đăng nhập bằng Google'),
                       style: ElevatedButton.styleFrom(

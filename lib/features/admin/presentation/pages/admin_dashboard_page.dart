@@ -4,7 +4,6 @@ import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
 import 'user_management_page.dart';
 import 'system_car_approval_page.dart';
-import 'booking_management_page.dart';
 
 class AdminDashboardPage extends StatelessWidget {
   const AdminDashboardPage({super.key});
@@ -41,22 +40,10 @@ class AdminDashboardPage extends StatelessWidget {
                 const SizedBox(width: 16),
                 Expanded(
                   child: InkWell(
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BookingManagementPage())),
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SystemCarApprovalPage())),
                     child: _StatCard(title: 'Đơn đặt xe', value: 'Quản lý', color: Colors.orange, icon: Icons.assignment),
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: InkWell(
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SystemCarApprovalPage())),
-                    child: _StatCard(title: 'Duyệt xe', value: 'Chờ duyệt', color: Colors.green, icon: Icons.check_circle),
-                  ),
-                ),
-                const Spacer(),
               ],
             ),
             const SizedBox(height: 32),

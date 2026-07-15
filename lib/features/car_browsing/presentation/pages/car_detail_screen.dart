@@ -59,17 +59,7 @@ class CarDetailScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
                   const Text(
-                    'Thông tin chi tiết',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Chiếc xe này đang trong tình trạng hoàn hảo, được bảo dưỡng định kỳ và đầy đủ bảo hiểm. Rất phù hợp cho các chuyến du lịch gia đình hoặc đi công tác xa.',
-                    style: TextStyle(fontSize: 16, height: 1.5),
-                  ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Tiện nghi',
+                    'Đặc điểm xe',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
@@ -82,6 +72,49 @@ class CarDetailScreen extends StatelessWidget {
                       _FeatureChip(icon: Icons.gps_fixed, label: 'GPS'),
                       _FeatureChip(icon: Icons.camera_alt, label: 'Camera lùi'),
                     ],
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Mô tả xe',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Chiếc xe này đang trong tình trạng hoàn hảo, được bảo dưỡng định kỳ và đầy đủ bảo hiểm. Rất phù hợp cho các chuyến du lịch gia đình hoặc đi công tác xa.',
+                    style: TextStyle(fontSize: 16, height: 1.5),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Vị trí xe',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  const Row(
+                    children: [
+                      Icon(Icons.location_on, color: Colors.blue),
+                      SizedBox(width: 8),
+                      Expanded(child: Text('Quận 1, Hồ Chí Minh', style: TextStyle(fontSize: 16))),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Điều khoản',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    '• Không hút thuốc trong xe\n• Vui lòng giữ gìn vệ sinh\n• Trả xe đúng giờ và đúng lượng nhiên liệu ban đầu',
+                    style: TextStyle(fontSize: 16, height: 1.5),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Chính sách hủy chuyến',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Miễn phí hủy chuyến trong vòng 24h sau khi đặt. Sau 24h sẽ tính phí 30% giá trị cọc.',
+                    style: TextStyle(fontSize: 16, height: 1.5),
                   ),
                   const SizedBox(height: 100),
                 ],
