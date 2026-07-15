@@ -21,6 +21,12 @@ import 'features/booking/domain/usecases/get_owner_bookings.dart';
 import 'features/booking/domain/usecases/update_booking_status.dart';
 import 'features/booking/presentation/bloc/booking_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'features/admin/data/datasources/admin_remote_data_source.dart';
+import 'features/admin/data/repositories/admin_repository_impl.dart';
+import 'features/admin/domain/repositories/admin_repository.dart';
+import 'features/admin/presentation/bloc/admin_bloc.dart';
+import 'features/car_browsing/data/datasources/favorite_local_data_source.dart';
+import 'features/car_browsing/presentation/bloc/favorite_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -73,4 +79,17 @@ Future<void> init() async {
   sl.registerLazySingleton<BookingRemoteDataSource>(
     () => BookingRemoteDataSourceImpl(sl()),
   );
+
+  //! Features - Admin
+  sl.registerFactory(() => AdminBloc(repository: sl()));
+  sl.registerLazySingleton<AdminRepository>(
+    () => AdminRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<AdminRemoteDataSource>(
+    () => AdminRemoteDataSourceImpl(sl()),
+  );
+
+  //! Features - Favorite
+  sl.registerFactory(() => FavoriteCubit(dataSource: sl()));
+  sl.registerLazySingleton(() => FavoriteLocalDataSource());
 }

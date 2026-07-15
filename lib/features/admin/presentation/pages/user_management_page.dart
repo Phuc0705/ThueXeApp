@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../auth/domain/entities/user_entity.dart';
+import '../bloc/admin_bloc.dart';
+import '../bloc/admin_event.dart';
+import '../bloc/admin_state.dart';
 
 class UserManagementPage extends StatefulWidget {
   const UserManagementPage({super.key});
@@ -9,21 +13,19 @@ class UserManagementPage extends StatefulWidget {
 }
 
 class _UserManagementPageState extends State<UserManagementPage> {
-  // Mock data
-  final List<UserEntity> _users = [
-    const UserEntity(id: '1', email: 'admin@gmail.com', fullName: 'System Admin', role: UserRole.admin),
-    const UserEntity(id: '2', email: 'user1@gmail.com', fullName: 'Nguyen Van A', role: UserRole.user, phoneNumber: '0987654321', idCard: '123456789'),
-    const UserEntity(id: '3', email: 'user2@gmail.com', fullName: 'Tran Thi B', role: UserRole.user),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    context.read<AdminBloc>().add(FetchAllUsers());
+  }
 
   void _showEditUserDialog(UserEntity user) {
     final nameController = TextEditingController(text: user.fullName);
     final phoneController = TextEditingController(text: user.phoneNumber ?? '');
-    final cccdController = TextEditingController(text: user.idCard ?? '');
 
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (ctx) {
         return AlertDialog(
           title: const Text('Chỉnh sửa người dùng'),
           content: Column(
@@ -31,16 +33,20 @@ class _UserManagementPageState extends State<UserManagementPage> {
             children: [
               TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Họ tên')),
               TextField(controller: phoneController, decoration: const InputDecoration(labelText: 'Số điện thoại')),
-              TextField(controller: cccdController, decoration: const InputDecoration(labelText: 'CCCD')),
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Hủy')),
+            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Hủy')),
             ElevatedButton(
               onPressed: () {
-                // TODO: Gọi API cập nhật user qua Supabase Admin API hoặc Backend
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tính năng đang phát triển')));
-                Navigator.pop(context);
+                context.read<AdminBloc>().add(
+                      UpdateUserInfo(
+                        user.id,
+                        nameController.text,
+                        phoneController.text,
+                      ),
+                    );
+                Navigator.pop(ctx);
               },
               child: const Text('Lưu'),
             ),
@@ -53,28 +59,66 @@ class _UserManagementPageState extends State<UserManagementPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Quản lý người dùng')),
-      body: ListView.builder(
-        itemCount: _users.length,
-        itemBuilder: (context, index) {
-          final user = _users[index];
-          return ListTile(
-            leading: const CircleAvatar(child: Icon(Icons.person)),
-            title: Text(user.fullName),
-            subtitle: Text('${user.email} • ${_getRoleText(user.role)}'),
-            trailing: PopupMenuButton(
-              itemBuilder: (context) => [
-                const PopupMenuItem(value: 'edit', child: Text('Chỉnh sửa thông tin')),
-                const PopupMenuItem(value: 'lock', child: Text('Khóa tài khoản')),
-                const PopupMenuItem(value: 'change_role', child: Text('Đổi vai trò')),
-              ],
-              onSelected: (value) {
-                if (value == 'edit') {
-                  _showEditUserDialog(user);
-                }
+      appBar: AppBar(
+        title: const Text('Quản lý người dùng'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              context.read<AdminBloc>().add(FetchAllUsers());
+            },
+          ),
+        ],
+      ),
+      body: BlocConsumer<AdminBloc, AdminState>(
+        listener: (context, state) {
+          if (state is AdminActionSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
+          } else if (state is AdminError) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message, style: const TextStyle(color: Colors.red))));
+          }
+        },
+        buildWhen: (previous, current) => current is AdminUsersLoaded || current is AdminLoading || current is AdminError,
+        builder: (context, state) {
+          if (state is AdminLoading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is AdminUsersLoaded) {
+            final users = state.users;
+            if (users.isEmpty) return const Center(child: Text('Không có người dùng nào.'));
+
+            return ListView.builder(
+              itemCount: users.length,
+              itemBuilder: (context, index) {
+                final user = users[index];
+                return ListTile(
+                  leading: const CircleAvatar(child: Icon(Icons.person)),
+                  title: Text(user.fullName),
+                  subtitle: Text('${user.email} • ${_getRoleText(user.role)}'),
+                  trailing: PopupMenuButton(
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(value: 'edit', child: Text('Chỉnh sửa thông tin')),
+                      const PopupMenuItem(value: 'delete', child: Text('Xóa tài khoản', style: TextStyle(color: Colors.red))),
+                      PopupMenuItem(
+                        value: 'change_role', 
+                        child: Text(user.role == UserRole.admin ? 'Hạ quyền thành User' : 'Nâng quyền thành Admin'),
+                      ),
+                    ],
+                    onSelected: (value) {
+                      if (value == 'edit') {
+                        _showEditUserDialog(user);
+                      } else if (value == 'delete') {
+                        _showDeleteConfirmDialog(user);
+                      } else if (value == 'change_role') {
+                        final newRole = user.role == UserRole.admin ? 'user' : 'admin';
+                        context.read<AdminBloc>().add(ChangeUserRoleEvent(user.id, newRole));
+                      }
+                    },
+                  ),
+                );
               },
-            ),
-          );
+            );
+          }
+          return const SizedBox();
         },
       ),
     );
@@ -85,5 +129,26 @@ class _UserManagementPageState extends State<UserManagementPage> {
       case UserRole.admin: return 'Admin';
       case UserRole.user: return 'Người dùng';
     }
+  }
+
+  void _showDeleteConfirmDialog(UserEntity user) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Xác nhận xóa'),
+        content: Text('Bạn có chắc chắn muốn xóa người dùng ${user.fullName} không? Hành động này không thể hoàn tác.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Hủy')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () {
+              context.read<AdminBloc>().add(DeleteUserEvent(user.id));
+              Navigator.pop(ctx);
+            },
+            child: const Text('Xóa', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
   }
 }

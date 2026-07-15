@@ -20,7 +20,7 @@ class CarModel extends Car {
       pricePerDay: (json['price_per_day'] ?? json['pricePerDay'] ?? 0).toDouble(),
       imageUrl: (json['image_urls'] != null && (json['image_urls'] as List).isNotEmpty)
           ? json['image_urls'][0]
-          : (json['imageUrl'] ?? ''),
+          : (json['image_url'] ?? json['imageUrl'] ?? ''),
       type: json['type'] ?? '',
       isAvailable: json['status'] == 'available' || json['isAvailable'] == true,
       ownerId: json['owner_id'] ?? '',

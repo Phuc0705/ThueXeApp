@@ -84,6 +84,32 @@ class _LoginPageState extends State<LoginPage> {
                       onPressed: _submit,
                       child: const Text('Đăng nhập'),
                     ),
+                    const SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        context.read<AuthBloc>().add(LoginWithGoogleRequested());
+                      },
+                      icon: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Text(
+                          'G',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: Colors.blue,
+                          ),
+                        ),
+                      ),
+                      label: const Text('Đăng nhập bằng Google'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black87,
+                      ),
+                    ),
                   ],
                   TextButton(
                     onPressed: () {

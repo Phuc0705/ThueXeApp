@@ -5,6 +5,8 @@ import 'features/auth/presentation/bloc/auth_event.dart';
 import 'features/car_browsing/presentation/bloc/car_bloc.dart';
 import 'features/car_browsing/presentation/bloc/car_event.dart';
 import 'features/booking/presentation/bloc/booking_bloc.dart';
+import 'features/admin/presentation/bloc/admin_bloc.dart';
+import 'features/car_browsing/presentation/bloc/favorite_cubit.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'injection_container.dart' as di;
@@ -40,6 +42,8 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => di.sl<AuthBloc>()..add(CheckAuthStatus())),
         BlocProvider(create: (_) => di.sl<CarBloc>()..add(FetchCarsEvent())),
         BlocProvider(create: (_) => di.sl<BookingBloc>()),
+        BlocProvider(create: (_) => di.sl<AdminBloc>()),
+        BlocProvider(create: (_) => di.sl<FavoriteCubit>()),
       ],
       child: MaterialApp(
         title: 'Thue Xe App',

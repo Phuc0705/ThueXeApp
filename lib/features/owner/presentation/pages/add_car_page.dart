@@ -92,8 +92,8 @@ class _AddCarPageState extends State<AddCarPage> {
         'type': _selectedType,
         'price_per_day': double.parse(_priceController.text),
         'image_urls': [carUrl], // Mảng chứa URL ảnh xe
-        'document_urls': [docFrontUrl, docBackUrl], // Đã bỏ comment để lưu lên Supabase
-        'status': 'available', // Cho phép hiển thị luôn để dễ test
+        'document_urls': [docFrontUrl, docBackUrl],
+        'status': 'pending', // Chờ duyệt
         'fuel_type': 'Xăng', 
         'transmission': 'Số tự động',
       });
