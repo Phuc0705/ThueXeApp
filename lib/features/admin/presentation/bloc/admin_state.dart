@@ -43,6 +43,13 @@ class AdminBookingsLoaded extends AdminState {
   List<Object> get props => [bookings];
 }
 
+class AdminPendingCarsLoaded extends AdminState {
+  final List<Map<String, dynamic>> cars;
+  const AdminPendingCarsLoaded(this.cars);
+  @override
+  List<Object> get props => [cars];
+}
+
 class AdminActionSuccess extends AdminState {
   final String message;
   const AdminActionSuccess(this.message);

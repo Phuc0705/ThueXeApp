@@ -20,8 +20,18 @@ class AdminRepositoryImpl implements AdminRepository {
   }
 
   @override
-  Future<UserModel> updateUserInfo(String userId, String name, String phone, String idCard) {
-    return remoteDataSource.updateUserInfo(userId, name, phone, idCard);
+  Future<void> updateUserInfo(String userId, String name, String phone, String idCard) async {
+    await remoteDataSource.updateUserInfo(userId, name, phone, idCard);
+  }
+
+  @override
+  Future<void> deleteUser(String userId) async {
+    await remoteDataSource.deleteUser(userId);
+  }
+
+  @override
+  Future<void> changeUserRole(String userId, String role) async {
+    await remoteDataSource.changeUserRole(userId, role);
   }
 
   @override
@@ -32,5 +42,15 @@ class AdminRepositoryImpl implements AdminRepository {
   @override
   Future<BookingModel> updateBookingStatus(String bookingId, BookingStatus status) {
     return remoteDataSource.updateBookingStatus(bookingId, status);
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getPendingCars() {
+    return remoteDataSource.getPendingCars();
+  }
+
+  @override
+  Future<void> approveCar(String carId, bool isApproved) {
+    return remoteDataSource.approveCar(carId, isApproved);
   }
 }

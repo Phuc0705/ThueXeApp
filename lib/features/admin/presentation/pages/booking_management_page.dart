@@ -109,7 +109,7 @@ class _BookingManagementPageState extends State<BookingManagementPage> {
                           ],
                         ),
                         const SizedBox(height: 8),
-                        Text('Khách hàng ID: ${booking.customerId}'),
+                        Text('Khách hàng ID: ${booking.userId}'),
                         Text('Xe ID: ${booking.carId}'),
                         const SizedBox(height: 8),
                         Text('Ngày thuê: ${formatDate.format(booking.startDate)} - ${formatDate.format(booking.endDate)}'),
@@ -118,7 +118,7 @@ class _BookingManagementPageState extends State<BookingManagementPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Tổng tiền: ${formatCurrency.format(booking.totalPrice)}',
+                              'Tổng tiền: ${formatCurrency.format(booking.totalAmount)}',
                               style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
                             ),
                             ElevatedButton(
