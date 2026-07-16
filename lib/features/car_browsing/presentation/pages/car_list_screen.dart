@@ -27,7 +27,6 @@ class _CarListScreenState extends State<CarListScreen> {
   String? _selectedFuel;
   String? _selectedSeats;
   String? _selectedDistrict;
-  String? _selectedDelivery;
 
   @override
   void initState() {
@@ -100,21 +99,11 @@ class _CarListScreenState extends State<CarListScreen> {
                     }
                   }
                   if (_selectedSeats != null) {
-                    if (_selectedSeats == '7 chỗ') {
-                      filteredCars = filteredCars.where((c) => c.type.toLowerCase().contains('suv') || c.type.toLowerCase().contains('mpv')).toList();
-                    } else { // 4 hoặc 5 chỗ
-                      filteredCars = filteredCars.where((c) => !c.type.toLowerCase().contains('suv') && !c.type.toLowerCase().contains('mpv')).toList();
-                    }
+                    int seatsToFilter = int.parse(_selectedSeats!.split(' ')[0]);
+                    filteredCars = filteredCars.where((c) => c.seats == seatsToFilter).toList();
                   }
                   if (_selectedDistrict != null) {
                     filteredCars = filteredCars.where((c) => c.location == _selectedDistrict).toList();
-                  }
-                  if (_selectedDelivery != null) {
-                    if (_selectedDelivery == 'Gặp chủ xe') {
-                      filteredCars = filteredCars.where((c) => c.type.toLowerCase().contains('suv')).toList();
-                    } else { // Tự nhận xe
-                      filteredCars = filteredCars.where((c) => !c.type.toLowerCase().contains('suv')).toList();
-                    }
                   }
 
                   if (filteredCars.isEmpty) {
@@ -206,7 +195,7 @@ class _CarListScreenState extends State<CarListScreen> {
   }
 
   Widget _buildFilterBar() {
-    bool isAll = _selectedBrand == null && _selectedFuel == null && _selectedSeats == null && _selectedDistrict == null && _selectedDelivery == null;
+    bool isAll = _selectedBrand == null && _selectedFuel == null && _selectedSeats == null && _selectedDistrict == null;
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -218,7 +207,6 @@ class _CarListScreenState extends State<CarListScreen> {
               _selectedFuel = null;
               _selectedSeats = null;
               _selectedDistrict = null;
-              _selectedDelivery = null;
             });
           }),
           const SizedBox(width: 8),
@@ -235,7 +223,7 @@ class _CarListScreenState extends State<CarListScreen> {
           }),
           const SizedBox(width: 8),
           _buildFilterChip(_selectedSeats ?? 'Số chỗ', hasIcon: true, isSelected: _selectedSeats != null, onTap: () {
-            _showFilterOptions('Số chỗ', ['4 chỗ', '5 chỗ', '7 chỗ'], _selectedSeats, (val) {
+            _showFilterOptions('Số chỗ', ['2 chỗ', '4 chỗ', '7 chỗ'], _selectedSeats, (val) {
               setState(() => _selectedSeats = val);
             });
           }),
@@ -243,12 +231,6 @@ class _CarListScreenState extends State<CarListScreen> {
           _buildFilterChip(_selectedFuel ?? 'Nhiên liệu', hasIcon: true, isSelected: _selectedFuel != null, onTap: () {
             _showFilterOptions('Nhiên liệu', ['Xăng', 'Dầu', 'Điện'], _selectedFuel, (val) {
               setState(() => _selectedFuel = val);
-            });
-          }),
-          const SizedBox(width: 8),
-          _buildFilterChip(_selectedDelivery ?? 'Hình thức', hasIcon: true, isSelected: _selectedDelivery != null, onTap: () {
-            _showFilterOptions('Hình thức nhận xe', ['Tự nhận xe', 'Gặp chủ xe'], _selectedDelivery, (val) {
-              setState(() => _selectedDelivery = val);
             });
           }),
         ],

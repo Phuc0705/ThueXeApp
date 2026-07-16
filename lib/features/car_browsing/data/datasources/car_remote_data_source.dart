@@ -24,7 +24,7 @@ class CarRemoteDataSourceImpl implements CarRemoteDataSource {
     String? transmission,
     double? maxPrice,
   }) async {
-    var dbQuery = supabase.from('cars').select();
+    var dbQuery = supabase.from('cars').select().inFilter('status', ['available', 'rented']);
     
     if (query != null && query.isNotEmpty) {
       dbQuery = dbQuery.ilike('name', '%$query%');

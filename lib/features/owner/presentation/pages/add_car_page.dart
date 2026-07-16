@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/widgets/gradient_app_bar.dart';
+import '../bloc/owner_bloc.dart';
+import '../bloc/owner_event.dart';
+import '../bloc/owner_state.dart';
 
 class AddCarPage extends StatefulWidget {
   const AddCarPage({super.key});
@@ -17,12 +20,27 @@ class _AddCarPageState extends State<AddCarPage> {
   final _nameController = TextEditingController();
   final _brandController = TextEditingController();
   final _priceController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _customBrandController = TextEditingController();
+  
   String _selectedType = 'Sedan';
+  String _selectedBrand = 'Toyota';
+  String _selectedTransmission = 'Số tự động';
+  String _selectedLocation = 'Quận 1';
+  int _selectedSeats = 4;
+  
+  final List<String> _districts = [
+    'Quận 1', 'Quận 2', 'Quận 3', 'Quận 4', 'Quận 5', 'Quận 6', 
+    'Quận 7', 'Quận 8', 'Quận 9', 'Quận 10', 'Quận 11', 'Quận 12',
+    'Bình Thạnh', 'Thủ Đức', 'Gò Vấp', 'Phú Nhuận', 'Tân Bình', 'Tân Phú', 'Bình Tân'
+  ];
+  final List<String> _brands = [
+    'Toyota', 'Honda', 'Ford', 'Mercedes', 'BMW', 'Audi', 'Hyundai', 'Kia', 'Mazda', 'Khác'
+  ];
   
   XFile? _carImage;
   XFile? _docFrontImage;
   XFile? _docBackImage;
-  bool _isUploading = false;
 
   final ImagePicker _picker = ImagePicker();
 
@@ -42,8 +60,12 @@ class _AddCarPageState extends State<AddCarPage> {
     }
   }
 
-  Future<void> _submitCar() async {
+  void _submitCar() {
     if (!_formKey.currentState!.validate()) return;
+    if (_selectedBrand == 'Khác' && _customBrandController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vui lòng nhập tên hãng xe')));
+      return;
+    }
     if (_carImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vui lòng chọn ảnh xe')));
       return;
@@ -57,59 +79,22 @@ class _AddCarPageState extends State<AddCarPage> {
       return;
     }
 
-    setState(() => _isUploading = true);
-
-    try {
-      final supabase = Supabase.instance.client;
-      final userId = supabase.auth.currentUser?.id;
-      if (userId == null) throw Exception('Bạn chưa đăng nhập!');
-
-      // Upload ảnh xe
-      final carExt = _carImage!.path.split('.').last;
-      final carFileName = 'car_${DateTime.now().millisecondsSinceEpoch}.$carExt';
-      final carBytes = await _carImage!.readAsBytes();
-      await supabase.storage.from('cars').uploadBinary(carFileName, carBytes);
-      final carUrl = supabase.storage.from('cars').getPublicUrl(carFileName);
-
-      // Upload giấy tờ xe mặt trước
-      final docFrontExt = _docFrontImage!.path.split('.').last;
-      final docFrontFileName = 'doc_front_${DateTime.now().millisecondsSinceEpoch}.$docFrontExt';
-      final docFrontBytes = await _docFrontImage!.readAsBytes();
-      await supabase.storage.from('cars').uploadBinary(docFrontFileName, docFrontBytes);
-      final docFrontUrl = supabase.storage.from('cars').getPublicUrl(docFrontFileName);
-
-      // Upload giấy tờ xe mặt sau
-      final docBackExt = _docBackImage!.path.split('.').last;
-      final docBackFileName = 'doc_back_${DateTime.now().millisecondsSinceEpoch}.$docBackExt';
-      final docBackBytes = await _docBackImage!.readAsBytes();
-      await supabase.storage.from('cars').uploadBinary(docBackFileName, docBackBytes);
-      final docBackUrl = supabase.storage.from('cars').getPublicUrl(docBackFileName);
-
-      // Insert vào bảng cars
-      await supabase.from('cars').insert({
-        'owner_id': userId,
-        'name': _nameController.text,
-        'brand': _brandController.text,
-        'type': _selectedType,
-        'price_per_day': double.parse(_priceController.text),
-        'image_urls': [carUrl], // Mảng chứa URL ảnh xe
-        'document_urls': [docFrontUrl, docBackUrl],
-        'status': 'pending', // Chờ duyệt
-        'fuel_type': 'Xăng', 
-        'transmission': 'Số tự động',
-      });
-
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đăng ký xe thành công!')));
-      Navigator.pop(context);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Lỗi: ${e.toString()}'),
-        backgroundColor: Colors.red,
-      ));
-    } finally {
-      if (mounted) setState(() => _isUploading = false);
-    }
+    context.read<OwnerBloc>().add(
+      AddCarEvent(
+        name: _nameController.text,
+        brand: _selectedBrand == 'Khác' ? _customBrandController.text.trim() : _selectedBrand,
+        pricePerDay: double.parse(_priceController.text),
+        type: _selectedType,
+        fuelType: 'Xăng', 
+        transmission: _selectedTransmission,
+        location: _selectedLocation,
+        description: _descriptionController.text,
+        seats: _selectedSeats,
+        carImage: _carImage!,
+        docFrontImage: _docFrontImage!,
+        docBackImage: _docBackImage!,
+      ),
+    );
   }
 
   Widget _buildImagePicker(String title, XFile? file, int type) {
@@ -132,9 +117,9 @@ class _AddCarPageState extends State<AddCarPage> {
                 ? (kIsWeb 
                     ? Image.network(file.path, fit: BoxFit.cover) 
                     : Image.file(File(file.path), fit: BoxFit.cover))
-                : Column(
+                : const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
+                    children: [
                       Icon(Icons.add_a_photo, size: 40, color: Colors.grey),
                       Text('Nhấn để chọn ảnh', style: TextStyle(color: Colors.grey)),
                     ],
@@ -149,73 +134,140 @@ class _AddCarPageState extends State<AddCarPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const GradientAppBar(title: 'Đăng ký xe cho thuê'),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Thông tin xe', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Tên xe (ví dụ: Mercedes C200)', border: OutlineInputBorder()),
-                validator: (v) => v!.isEmpty ? 'Vui lòng nhập tên xe' : null,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _brandController,
-                decoration: const InputDecoration(labelText: 'Hãng xe', border: OutlineInputBorder()),
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: _selectedType,
-                decoration: const InputDecoration(labelText: 'Loại xe', border: OutlineInputBorder()),
-                items: ['Sedan', 'SUV', 'Xe điện', 'Luxury', 'Bán tải'].map((String value) {
-                  return DropdownMenuItem<String>(value: value, child: Text(value));
-                }).toList(),
-                onChanged: (v) => setState(() => _selectedType = v!),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _priceController,
-                decoration: const InputDecoration(
-                  labelText: 'Giá thuê / ngày (\u0024)',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-                validator: (v) => v!.isEmpty ? 'Vui lòng nhập giá' : null,
-              ),
-              const SizedBox(height: 24),
-              _buildImagePicker('Hình ảnh xe', _carImage, 0),
-              const SizedBox(height: 24),
-              Row(
+      body: BlocConsumer<OwnerBloc, OwnerState>(
+        listener: (context, state) {
+          if (state is OwnerCarAddedSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Đăng ký xe thành công!')),
+            );
+            Navigator.pop(context, true);
+          } else if (state is OwnerError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Lỗi: ${state.message}'), backgroundColor: Colors.red),
+            );
+          }
+        },
+        builder: (context, state) {
+          final isUploading = state is OwnerLoading;
+          
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: _buildImagePicker('Mặt trước giấy tờ', _docFrontImage, 1),
+                  const Text('Thông tin xe', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: const InputDecoration(labelText: 'Tên xe (ví dụ: Mercedes C200)', border: OutlineInputBorder()),
+                    validator: (v) => v!.isEmpty ? 'Vui lòng nhập tên xe' : null,
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildImagePicker('Mặt sau giấy tờ', _docBackImage, 2),
+                  const SizedBox(height: 16),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: _selectedBrand,
+                    decoration: const InputDecoration(labelText: 'Hãng xe', border: OutlineInputBorder()),
+                    items: _brands.map((String value) {
+                      return DropdownMenuItem<String>(value: value, child: Text(value));
+                    }).toList(),
+                    onChanged: (v) => setState(() => _selectedBrand = v!),
+                  ),
+                  if (_selectedBrand == 'Khác') ...[
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _customBrandController,
+                      decoration: const InputDecoration(labelText: 'Nhập tên hãng xe', border: OutlineInputBorder()),
+                      validator: (v) => _selectedBrand == 'Khác' && v!.trim().isEmpty ? 'Vui lòng nhập tên hãng xe' : null,
+                    ),
+                  ],
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: _selectedType,
+                    decoration: const InputDecoration(labelText: 'Loại xe', border: OutlineInputBorder()),
+                    items: ['Sedan', 'SUV', 'Xe điện', 'Luxury', 'Bán tải'].map((String value) {
+                      return DropdownMenuItem<String>(value: value, child: Text(value));
+                    }).toList(),
+                    onChanged: (v) => setState(() => _selectedType = v!),
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: _selectedTransmission,
+                    decoration: const InputDecoration(labelText: 'Hộp số', border: OutlineInputBorder()),
+                    items: ['Số tự động', 'Số sàn'].map((String value) {
+                      return DropdownMenuItem<String>(value: value, child: Text(value));
+                    }).toList(),
+                    onChanged: (v) => setState(() => _selectedTransmission = v!),
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<int>(
+                    value: _selectedSeats,
+                    decoration: const InputDecoration(labelText: 'Số chỗ', border: OutlineInputBorder()),
+                    items: [2, 4, 7].map((int value) {
+                      return DropdownMenuItem<int>(value: value, child: Text('$value chỗ'));
+                    }).toList(),
+                    onChanged: (v) => setState(() => _selectedSeats = v!),
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: _selectedLocation,
+                    decoration: const InputDecoration(labelText: 'Khu vực (Quận/Huyện TPHCM)', border: OutlineInputBorder()),
+                    items: _districts.map((String value) {
+                      return DropdownMenuItem<String>(value: value, child: Text(value));
+                    }).toList(),
+                    onChanged: (v) => setState(() => _selectedLocation = v!),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _priceController,
+                    decoration: const InputDecoration(
+                      labelText: 'Giá thuê / ngày (USD)',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (v) => v!.isEmpty ? 'Vui lòng nhập giá' : null,
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _descriptionController,
+                    maxLines: 3,
+                    decoration: const InputDecoration(
+                      labelText: 'Mô tả chi tiết xe',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  _buildImagePicker('Hình ảnh xe', _carImage, 0),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildImagePicker('Mặt trước giấy tờ', _docFrontImage, 1),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildImagePicker('Mặt sau giấy tờ', _docBackImage, 2),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: isUploading ? null : _submitCar,
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white),
+                      child: isUploading 
+                          ? const CircularProgressIndicator(color: Colors.white) 
+                          : const Text('GỬI YÊU CẦU ĐĂNG KÝ'),
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _isUploading ? null : _submitCar,
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white),
-                  child: _isUploading 
-                      ? const CircularProgressIndicator(color: Colors.white) 
-                      : const Text('GỬI YÊU CẦU ĐĂNG KÝ'),
-                ),
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }

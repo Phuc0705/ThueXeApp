@@ -50,7 +50,7 @@ class UpdateBookingStatusEvent extends AdminEvent {
   List<Object> get props => [bookingId, status];
 }
 
-class FetchPendingCars extends AdminEvent {}
+class FetchSystemCars extends AdminEvent {}
 
 class ApproveCarEvent extends AdminEvent {
   final String carId;

@@ -11,6 +11,9 @@ class CarModel extends Car {
     required super.isAvailable,
     super.ownerId,
     super.location,
+    required super.description,
+    required super.seats,
+    required super.status,
   });
 
   factory CarModel.fromJson(Map<String, dynamic> json) {
@@ -26,6 +29,9 @@ class CarModel extends Car {
       isAvailable: json['status'] == 'available' || json['isAvailable'] == true,
       ownerId: json['owner_id'] ?? '',
       location: json['location'] ?? _getMockLocation(json['id']),
+      description: json['description'] ?? '',
+      seats: json['seats'] ?? 4,
+      status: json['status'] ?? (json['isAvailable'] == true ? 'available' : 'rented'),
     );
   }
 
@@ -43,8 +49,10 @@ class CarModel extends Car {
       'price_per_day': pricePerDay,
       'image_urls': [imageUrl],
       'type': type,
-      'status': isAvailable ? 'available' : 'rented',
+      'status': status,
       'location': location,
+      'description': description,
+      'seats': seats,
     };
   }
 }

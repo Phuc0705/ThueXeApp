@@ -28,6 +28,14 @@ import 'features/admin/presentation/bloc/admin_bloc.dart';
 import 'features/car_browsing/data/datasources/favorite_local_data_source.dart';
 import 'features/car_browsing/presentation/bloc/favorite_cubit.dart';
 import 'features/car_browsing/data/datasources/favorite_remote_data_source.dart';
+import 'features/owner/data/datasources/owner_remote_data_source.dart';
+import 'features/owner/data/repositories/owner_repository_impl.dart';
+import 'features/owner/domain/repositories/owner_repository.dart';
+import 'features/owner/domain/usecases/add_car.dart';
+import 'features/owner/domain/usecases/get_my_cars.dart';
+import 'features/owner/domain/usecases/delete_car.dart';
+import 'features/owner/domain/usecases/update_car_status.dart';
+import 'features/owner/presentation/bloc/owner_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -100,4 +108,22 @@ Future<void> init() async {
     supabase: sl(),
   ));
   sl.registerLazySingleton(() => FavoriteLocalDataSource());
+
+  //! Features - Owner
+  sl.registerFactory(() => OwnerBloc(
+        addCar: sl(),
+        getMyCars: sl(),
+        deleteCar: sl(),
+        updateCarStatus: sl(),
+      ));
+  sl.registerLazySingleton(() => AddCar(sl()));
+  sl.registerLazySingleton(() => GetMyCars(sl()));
+  sl.registerLazySingleton(() => DeleteCar(sl()));
+  sl.registerLazySingleton(() => UpdateCarStatus(sl()));
+  sl.registerLazySingleton<OwnerRepository>(
+    () => OwnerRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<OwnerRemoteDataSource>(
+    () => OwnerRemoteDataSourceImpl(sl()),
+  );
 }

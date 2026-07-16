@@ -14,7 +14,7 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
     on<ChangeUserRoleEvent>(_onChangeUserRole);
     on<FetchAllBookings>(_onFetchAllBookings);
     on<UpdateBookingStatusEvent>(_onUpdateBookingStatus);
-    on<FetchPendingCars>(_onFetchPendingCars);
+    on<FetchSystemCars>(_onFetchSystemCars);
     on<ApproveCarEvent>(_onApproveCar);
   }
 
@@ -97,22 +97,22 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
     }
   }
 
-  Future<void> _onFetchPendingCars(FetchPendingCars event, Emitter<AdminState> emit) async {
+  Future<void> _onFetchSystemCars(FetchSystemCars event, Emitter<AdminState> emit) async {
     emit(AdminLoading());
     try {
-      final cars = await repository.getPendingCars();
-      emit(AdminPendingCarsLoaded(cars));
+      final cars = await repository.getSystemCars();
+      emit(AdminSystemCarsLoaded(cars));
     } catch (e) {
-      emit(AdminError('Lỗi tải danh sách xe chờ duyệt: ${e.toString()}'));
+      emit(AdminError('Lỗi tải danh sách xe: ${e.toString()}'));
     }
   }
 
   Future<void> _onApproveCar(ApproveCarEvent event, Emitter<AdminState> emit) async {
     try {
       await repository.approveCar(event.carId, event.isApproved);
-      final cars = await repository.getPendingCars();
+      final cars = await repository.getSystemCars();
       emit(AdminActionSuccess(event.isApproved ? 'Đã duyệt xe thành công' : 'Đã từ chối xe'));
-      emit(AdminPendingCarsLoaded(cars));
+      emit(AdminSystemCarsLoaded(cars));
     } catch (e) {
       emit(AdminError('Lỗi xử lý duyệt xe: ${e.toString()}'));
     }
