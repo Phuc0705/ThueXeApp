@@ -38,9 +38,7 @@ class _BookingPageState extends State<BookingPage> {
   bool _addGPS = false;
   // 2. Hình thức nhận xe (0: Tự lấy, 1: Giao tận nơi)
   int _deliveryMethod = 0;
-  // 3. Thuê tài xế
-  bool _withDriver = false;
-  // 4. Điều khoản
+  // 3. Điều khoản
   bool _isAgreedToTerms = false;
 
   void _selectDateRange() async {
@@ -85,9 +83,6 @@ class _BookingPageState extends State<BookingPage> {
     // Hình thức nhận xe
     if (_deliveryMethod == 1) total += 15.0; // Phí giao xe 15$
 
-    // Thuê tài xế
-    if (_withDriver) total += (days * 30.0); // 30$/ngày
-
     return total;
   }
 
@@ -99,7 +94,6 @@ class _BookingPageState extends State<BookingPage> {
     final babySeatPrice = _addBabySeat ? (days * 2.0) : 0.0;
     final gpsPrice = _addGPS ? 10.0 : 0.0;
     final deliveryPrice = _deliveryMethod == 1 ? 15.0 : 0.0;
-    final driverPrice = _withDriver ? (days * 30.0) : 0.0;
 
     showModalBottomSheet(
         context: context,
@@ -119,7 +113,6 @@ class _BookingPageState extends State<BookingPage> {
                 if (_addBabySeat) _buildBreakdownRow('Ghế an toàn trẻ em', babySeatPrice),
                 if (_addGPS) _buildBreakdownRow('Thiết bị GPS', gpsPrice),
                 if (_deliveryMethod == 1) _buildBreakdownRow('Giao xe tận nơi', deliveryPrice),
-                if (_withDriver) _buildBreakdownRow('Thuê tài xế riêng', driverPrice),
                 const Divider(height: 30),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -327,37 +320,9 @@ class _BookingPageState extends State<BookingPage> {
                       ),
                       const Divider(),
 
-                      // Thuê tài xế
-                      SwitchListTile(
-                        title: const Text('Thuê tài xế riêng', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        subtitle: const Text('Thư giãn tận hưởng chuyến đi (+\$30/ngày)'),
-                        value: _withDriver,
-                        contentPadding: EdgeInsets.zero,
-                        activeColor: Colors.blue,
-                        onChanged: (bool value) => setState(() => _withDriver = value),
-                      ),
                       const Divider(),
 
-                      // Chính sách hủy chuyến
-                      const ExpansionTile(
-                        title: Text(
-                          'Chính sách hủy chuyến',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
-                        ),
-                        tilePadding: EdgeInsets.zero,
-                        expandedAlignment: Alignment.topLeft,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-                            child: Text(
-                              '• Miễn phí hủy chuyến trong vòng 24h sau khi thực hiện đặt xe.\n'
-                                  '• Hoàn tiền 100% nếu hủy chuyến trước thời gian nhận xe ít nhất 48h.\n'
-                                  '• Thu phí 50% giá trị đơn hàng nếu thực hiện hủy chuyến trong vòng 24h trước khi nhận xe.',
-                              style: TextStyle(fontSize: 13, color: Colors.grey, height: 1.5),
-                            ),
-                          ),
-                        ],
-                      ),
+
                     ],
                   ),
                 ),
@@ -421,6 +386,10 @@ class _BookingPageState extends State<BookingPage> {
                               startDate: _selectedDateRange!.start,
                               endDate: _selectedDateRange!.end,
                               totalAmount: _calculateTotal(),
+                              addBabySeat: _addBabySeat,
+                              addGPS: _addGPS,
+                              deliveryMethod: _deliveryMethod,
+                              note: _noteController.text,
                             ),
                           ),
                         );

@@ -46,55 +46,36 @@ class _SystemCarApprovalPageState extends State<SystemCarApprovalPage> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: GradientAppBar(
-          title: 'Duyệt xe hệ thống',
-          bottom: const TabBar(
-            indicatorColor: Colors.white,
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white70,
-            tabs: [
-              Tab(text: 'Chờ duyệt'),
-              Tab(text: 'Tất cả xe'),
-            ],
+    return Scaffold(
+      appBar: GradientAppBar(
+        title: 'Duyệt xe hệ thống',
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            onPressed: () {
+              context.read<AdminBloc>().add(FetchSystemCars());
+            },
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.refresh, color: Colors.white),
-              onPressed: () {
-                context.read<AdminBloc>().add(FetchSystemCars());
-              },
-            ),
-          ],
-        ),
-        body: BlocConsumer<AdminBloc, AdminState>(
-          listener: (context, state) {
-            if (state is AdminActionSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
-            } else if (state is AdminError) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message, style: const TextStyle(color: Colors.red))));
-            }
-          },
-          buildWhen: (previous, current) => current is AdminSystemCarsLoaded || current is AdminLoading || current is AdminError,
-          builder: (context, state) {
-            if (state is AdminLoading) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (state is AdminSystemCarsLoaded) {
-              final allCars = state.cars;
-              final pendingCars = allCars.where((c) => c['status'] == 'pending').toList();
-
-              return TabBarView(
-                children: [
-                  _buildCarList(pendingCars, isPendingList: true),
-                  _buildCarList(allCars, isPendingList: false),
-                ],
-              );
-            }
-            return const SizedBox();
-          },
-        ),
+        ],
+      ),
+      body: BlocConsumer<AdminBloc, AdminState>(
+        listener: (context, state) {
+          if (state is AdminActionSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
+          } else if (state is AdminError) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message, style: const TextStyle(color: Colors.red))));
+          }
+        },
+        buildWhen: (previous, current) => current is AdminSystemCarsLoaded || current is AdminLoading || current is AdminError,
+        builder: (context, state) {
+          if (state is AdminLoading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is AdminSystemCarsLoaded) {
+            final pendingCars = state.cars.where((c) => c['status'] == 'pending').toList();
+            return _buildCarList(pendingCars, isPendingList: true);
+          }
+          return const SizedBox();
+        },
       ),
     );
   }

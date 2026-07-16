@@ -99,6 +99,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   if (value == null || value.trim().isEmpty) {
                     return 'Vui lòng nhập số điện thoại';
                   }
+                  if (value.trim().length != 10) {
+                    return 'Số điện thoại phải bao gồm đúng 10 số';
+                  }
+                  if (RegExp(r'^[0-9]+$').hasMatch(value.trim()) == false) {
+                    return 'Số điện thoại chỉ được chứa số';
+                  }
                   return null;
                 },
               ),

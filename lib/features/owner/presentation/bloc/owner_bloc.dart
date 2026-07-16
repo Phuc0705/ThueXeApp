@@ -51,7 +51,7 @@ class OwnerBloc extends Bloc<OwnerEvent, OwnerState> {
     ));
 
     result.fold(
-      (failure) => emit(const OwnerError(message: 'Lỗi khi thêm xe mới. Vui lòng thử lại.')),
+      (failure) => emit(OwnerError(message: 'Lỗi: ${failure.message}')),
       (car) => emit(OwnerCarAddedSuccess(car: car)),
     );
   }

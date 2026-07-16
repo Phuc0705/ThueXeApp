@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/widgets/gradient_app_bar.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
 import '../bloc/owner_bloc.dart';
 import '../bloc/owner_event.dart';
 import '../bloc/owner_state.dart';
@@ -18,7 +20,6 @@ class AddCarPage extends StatefulWidget {
 class _AddCarPageState extends State<AddCarPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _brandController = TextEditingController();
   final _priceController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _customBrandController = TextEditingController();
@@ -61,6 +62,23 @@ class _AddCarPageState extends State<AddCarPage> {
   }
 
   void _submitCar() {
+    final authState = context.read<AuthBloc>().state;
+    if (authState is Authenticated) {
+      final user = authState.user;
+      if (user.fullName.trim().isEmpty || 
+          user.phoneNumber == null || user.phoneNumber!.trim().isEmpty || 
+          user.idCard == null || user.idCard!.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Vui lòng cập nhật đầy đủ thông tin (SĐT, CCCD) trong Hồ sơ trước khi đăng ký xe!'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 4),
+          )
+        );
+        return;
+      }
+    }
+
     if (!_formKey.currentState!.validate()) return;
     if (_selectedBrand == 'Khác' && _customBrandController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vui lòng nhập tên hãng xe')));
@@ -167,7 +185,7 @@ class _AddCarPageState extends State<AddCarPage> {
                   const SizedBox(height: 16),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
-                    value: _selectedBrand,
+                    initialValue: _selectedBrand,
                     decoration: const InputDecoration(labelText: 'Hãng xe', border: OutlineInputBorder()),
                     items: _brands.map((String value) {
                       return DropdownMenuItem<String>(value: value, child: Text(value));
@@ -184,7 +202,7 @@ class _AddCarPageState extends State<AddCarPage> {
                   ],
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
-                    value: _selectedType,
+                    initialValue: _selectedType,
                     decoration: const InputDecoration(labelText: 'Loại xe', border: OutlineInputBorder()),
                     items: ['Sedan', 'SUV', 'Xe điện', 'Luxury', 'Bán tải'].map((String value) {
                       return DropdownMenuItem<String>(value: value, child: Text(value));
@@ -193,7 +211,7 @@ class _AddCarPageState extends State<AddCarPage> {
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
-                    value: _selectedTransmission,
+                    initialValue: _selectedTransmission,
                     decoration: const InputDecoration(labelText: 'Hộp số', border: OutlineInputBorder()),
                     items: ['Số tự động', 'Số sàn'].map((String value) {
                       return DropdownMenuItem<String>(value: value, child: Text(value));
@@ -202,7 +220,7 @@ class _AddCarPageState extends State<AddCarPage> {
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<int>(
-                    value: _selectedSeats,
+                    initialValue: _selectedSeats,
                     decoration: const InputDecoration(labelText: 'Số chỗ', border: OutlineInputBorder()),
                     items: [2, 4, 7].map((int value) {
                       return DropdownMenuItem<int>(value: value, child: Text('$value chỗ'));
@@ -211,7 +229,7 @@ class _AddCarPageState extends State<AddCarPage> {
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
-                    value: _selectedLocation,
+                    initialValue: _selectedLocation,
                     decoration: const InputDecoration(labelText: 'Khu vực (Quận/Huyện TPHCM)', border: OutlineInputBorder()),
                     items: _districts.map((String value) {
                       return DropdownMenuItem<String>(value: value, child: Text(value));
@@ -226,7 +244,11 @@ class _AddCarPageState extends State<AddCarPage> {
                       border: OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.number,
-                    validator: (v) => v!.isEmpty ? 'Vui lòng nhập giá' : null,
+                    validator: (v) {
+                      if (v!.isEmpty) return 'Vui lòng nhập giá';
+                      if (double.tryParse(v) == null) return 'Giá thuê phải là một số hợp lệ';
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 16),
                   TextFormField(

@@ -107,14 +107,24 @@ class CarDetailScreen extends StatelessWidget {
                     style: TextStyle(fontSize: 16, height: 1.5),
                   ),
                   const SizedBox(height: 24),
-                  const Text(
-                    'Chính sách hủy chuyến',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Miễn phí hủy chuyến trong vòng 24h sau khi đặt. Sau 24h sẽ tính phí 30% giá trị cọc.',
-                    style: TextStyle(fontSize: 16, height: 1.5),
+                  const ExpansionTile(
+                    title: Text(
+                      'Chính sách hủy chuyến',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    tilePadding: EdgeInsets.zero,
+                    expandedAlignment: Alignment.topLeft,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                        child: Text(
+                          '• Miễn phí hủy chuyến trong vòng 24h sau khi thực hiện đặt xe.\n'
+                              '• Hoàn tiền 100% nếu hủy chuyến trước thời gian nhận xe ít nhất 48h.\n'
+                              '• Thu phí 50% giá trị đơn hàng nếu thực hiện hủy chuyến trong vòng 24h trước khi nhận xe.',
+                          style: TextStyle(fontSize: 16, height: 1.5),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 100),
                 ],

@@ -21,22 +21,13 @@ class VietQRService {
     // Định dạng theo EMV Co - Merchant Presented Mode (MPM)
     // Cấu trúc: TAG - LENGTH - VALUE
     
-    Map<String, String> tags = {
-      '00': '011012',        // Phiên bản
-      '01': '12',            // Ký hiệu khởi tạo
-      '81': '06VIETQR',      // Globally Unique Identifier
-      '50': '0010A000000727',// Application Template
-      '51': '0707A000000727', // Merchant Account Information
-    };
+
 
     // Thông tin tài khoản merchant
     // Format: 0012 (length) + VIETQR + 01 (serviceCode) + bankCode + accountNumber
     final accountInfo = _encodeTag(
       '0012',
-      'VIETQR' +
-          '01' +
-          bankCode +
-          accountNumber,
+      'VIETQR01$bankCode$accountNumber',
     );
 
     // Tên merchant
@@ -109,14 +100,14 @@ class VietQRService {
 
 /// Mã ngân hàng VN (Bank Code)
 class BankCodes {
-  static const String VIETCOMBANK = '970012'; // Vietcombank
-  static const String MBBANK = '970014'; // MB Bank
-  static const String TECHCOMBANK = '970015'; // Techcombank
-  static const String VPBANK = '970016'; // VPBank
-  static const String AGRIBANK = '970018'; // Agribank
-  static const String ACB = '970010'; // ACB
-  static const String SACOMBANK = '970019'; // Sacombank
-  static const String SHB = '970020'; // SHB
-  static const String VIB = '970021'; // VIB
-  static const String EXIMBANK = '970092'; // Eximbank
+  static const String vietcombank = '970012'; // Vietcombank
+  static const String mbBank = '970014'; // MB Bank
+  static const String techcombank = '970015'; // Techcombank
+  static const String vpBank = '970016'; // VPBank
+  static const String agribank = '970018'; // Agribank
+  static const String acb = '970010'; // ACB
+  static const String sacombank = '970019'; // Sacombank
+  static const String shb = '970020'; // SHB
+  static const String vib = '970021'; // VIB
+  static const String eximbank = '970092'; // Eximbank
 }

@@ -23,10 +23,10 @@ class CarListScreen extends StatefulWidget {
 }
 
 class _CarListScreenState extends State<CarListScreen> {
-  String? _selectedBrand;
-  String? _selectedFuel;
-  String? _selectedSeats;
-  String? _selectedDistrict;
+  List<String> _selectedBrands = [];
+  List<String> _selectedFuels = [];
+  List<String> _selectedSeats = [];
+  List<String> _selectedDistricts = [];
 
   @override
   void initState() {
@@ -85,25 +85,30 @@ class _CarListScreenState extends State<CarListScreen> {
                 } else if (state is CarLoaded) {
                   var filteredCars = state.cars;
 
-                  if (_selectedBrand != null) {
-                    filteredCars = filteredCars.where((c) => c.brand.toLowerCase() == _selectedBrand!.toLowerCase()).toList();
+                  if (_selectedBrands.isNotEmpty) {
+                    filteredCars = filteredCars.where((c) => _selectedBrands.contains(c.brand)).toList();
                   }
-                  if (_selectedFuel != null) {
-                    if (_selectedFuel == 'Điện') {
-                      filteredCars = filteredCars.where((c) => c.type.toLowerCase().contains('electric') || c.type.toLowerCase().contains('điện')).toList();
-                    } else if (_selectedFuel == 'Dầu') {
-                      // Không có xe dầu trong mock data, có thể bỏ qua hoặc fake
-                      filteredCars = filteredCars.where((c) => c.type.toLowerCase().contains('diesel') || c.type.toLowerCase().contains('dầu')).toList();
-                    } else { // Xăng
-                      filteredCars = filteredCars.where((c) => !c.type.toLowerCase().contains('electric') && !c.type.toLowerCase().contains('điện')).toList();
-                    }
+                  if (_selectedFuels.isNotEmpty) {
+                    filteredCars = filteredCars.where((c) {
+                      bool match = false;
+                      for (String fuel in _selectedFuels) {
+                        if (fuel == 'Điện') {
+                          match = match || c.type.toLowerCase().contains('electric') || c.type.toLowerCase().contains('điện');
+                        } else if (fuel == 'Dầu') {
+                          match = match || c.type.toLowerCase().contains('diesel') || c.type.toLowerCase().contains('dầu');
+                        } else {
+                          match = match || (!c.type.toLowerCase().contains('electric') && !c.type.toLowerCase().contains('điện'));
+                        }
+                      }
+                      return match;
+                    }).toList();
                   }
-                  if (_selectedSeats != null) {
-                    int seatsToFilter = int.parse(_selectedSeats!.split(' ')[0]);
-                    filteredCars = filteredCars.where((c) => c.seats == seatsToFilter).toList();
+                  if (_selectedSeats.isNotEmpty) {
+                    List<int> seatsToFilter = _selectedSeats.map((s) => int.parse(s.split(' ')[0])).toList();
+                    filteredCars = filteredCars.where((c) => seatsToFilter.contains(c.seats)).toList();
                   }
-                  if (_selectedDistrict != null) {
-                    filteredCars = filteredCars.where((c) => c.location == _selectedDistrict).toList();
+                  if (_selectedDistricts.isNotEmpty) {
+                    filteredCars = filteredCars.where((c) => _selectedDistricts.contains(c.location)).toList();
                   }
 
                   if (filteredCars.isEmpty) {
@@ -195,7 +200,7 @@ class _CarListScreenState extends State<CarListScreen> {
   }
 
   Widget _buildFilterBar() {
-    bool isAll = _selectedBrand == null && _selectedFuel == null && _selectedSeats == null && _selectedDistrict == null;
+    bool isAll = _selectedBrands.isEmpty && _selectedFuels.isEmpty && _selectedSeats.isEmpty && _selectedDistricts.isEmpty;
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -203,34 +208,34 @@ class _CarListScreenState extends State<CarListScreen> {
         children: [
           _buildFilterChip('Tất cả', isSelected: isAll, onTap: () {
             setState(() {
-              _selectedBrand = null;
-              _selectedFuel = null;
-              _selectedSeats = null;
-              _selectedDistrict = null;
+              _selectedBrands.clear();
+              _selectedFuels.clear();
+              _selectedSeats.clear();
+              _selectedDistricts.clear();
             });
           }),
           const SizedBox(width: 8),
-          _buildFilterChip(_selectedDistrict ?? 'Khu vực', hasIcon: true, isSelected: _selectedDistrict != null, onTap: () {
-            _showFilterOptions('Khu vực (Quận/Huyện)', ['Quận 1', 'Quận 2', 'Quận 3', 'Quận 4', 'Quận 5', 'Quận 6', 'Quận 7', 'Quận 8', 'Quận 9', 'Quận 10', 'Quận 11', 'Quận 12', 'Bình Thạnh', 'Phú Nhuận', 'Thủ Đức', 'Gò Vấp', 'Tân Bình', 'Tân Phú', 'Bình Tân', 'Hóc Môn', 'Củ Chi', 'Nhà Bè', 'Bình Chánh', 'Cần Giờ'], _selectedDistrict, (val) {
-              setState(() => _selectedDistrict = val);
+          _buildFilterChip(_selectedDistricts.isNotEmpty ? 'Khu vực (${_selectedDistricts.length})' : 'Khu vực', hasIcon: true, isSelected: _selectedDistricts.isNotEmpty, onTap: () {
+            _showFilterOptions('Khu vực', ['Quận 1', 'Quận 2', 'Quận 3', 'Quận 4', 'Quận 5', 'Quận 6', 'Quận 7', 'Quận 8', 'Quận 9', 'Quận 10', 'Quận 11', 'Quận 12', 'Bình Thạnh', 'Thủ Đức', 'Gò Vấp', 'Phú Nhuận', 'Tân Bình', 'Tân Phú', 'Bình Tân'], List.from(_selectedDistricts), (val) {
+              setState(() => _selectedDistricts = val);
             });
           }),
           const SizedBox(width: 8),
-          _buildFilterChip(_selectedBrand ?? 'Hãng xe', hasIcon: true, isSelected: _selectedBrand != null, onTap: () {
-            _showFilterOptions('Hãng xe', ['Ford', 'Mercedes', 'Toyota', 'VinFast', 'Mazda', 'Honda', 'Suzuki', 'Hyundai', 'Kia', 'Mitsubishi', 'Porsche', 'Tesla'], _selectedBrand, (val) {
-              setState(() => _selectedBrand = val);
+          _buildFilterChip(_selectedBrands.isNotEmpty ? 'Hãng xe (${_selectedBrands.length})' : 'Hãng xe', hasIcon: true, isSelected: _selectedBrands.isNotEmpty, onTap: () {
+            _showFilterOptions('Hãng xe', ['Toyota', 'Honda', 'Ford', 'Mercedes', 'BMW', 'Audi', 'Hyundai', 'Kia', 'Mazda', 'VinFast'], List.from(_selectedBrands), (val) {
+              setState(() => _selectedBrands = val);
             });
           }),
           const SizedBox(width: 8),
-          _buildFilterChip(_selectedSeats ?? 'Số chỗ', hasIcon: true, isSelected: _selectedSeats != null, onTap: () {
-            _showFilterOptions('Số chỗ', ['2 chỗ', '4 chỗ', '7 chỗ'], _selectedSeats, (val) {
+          _buildFilterChip(_selectedSeats.isNotEmpty ? 'Số chỗ (${_selectedSeats.length})' : 'Số chỗ', hasIcon: true, isSelected: _selectedSeats.isNotEmpty, onTap: () {
+            _showFilterOptions('Số chỗ', ['4 chỗ', '5 chỗ', '7 chỗ'], List.from(_selectedSeats), (val) {
               setState(() => _selectedSeats = val);
             });
           }),
           const SizedBox(width: 8),
-          _buildFilterChip(_selectedFuel ?? 'Nhiên liệu', hasIcon: true, isSelected: _selectedFuel != null, onTap: () {
-            _showFilterOptions('Nhiên liệu', ['Xăng', 'Dầu', 'Điện'], _selectedFuel, (val) {
-              setState(() => _selectedFuel = val);
+          _buildFilterChip(_selectedFuels.isNotEmpty ? 'Nhiên liệu (${_selectedFuels.length})' : 'Nhiên liệu', hasIcon: true, isSelected: _selectedFuels.isNotEmpty, onTap: () {
+            _showFilterOptions('Nhiên liệu', ['Xăng', 'Dầu', 'Điện'], List.from(_selectedFuels), (val) {
+              setState(() => _selectedFuels = val);
             });
           }),
         ],
@@ -272,54 +277,58 @@ class _CarListScreenState extends State<CarListScreen> {
     );
   }
 
-  void _showFilterOptions(String title, List<String> options, String? currentValue, Function(String?) onSelected) {
+  void _showFilterOptions(String title, List<String> options, List<String> currentValues, Function(List<String>) onSelected) {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 16),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: options.map((option) {
-                  bool isSelected = currentValue == option;
-                  return InkWell(
-                    onTap: () {
-                      onSelected(isSelected ? null : option);
-                      Navigator.pop(context);
-                    },
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: isSelected ? Colors.blue.withOpacity(0.1) : Colors.grey.shade100,
-                        border: Border.all(
-                          color: isSelected ? Colors.blue : Colors.grey.shade300,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        option,
-                        style: TextStyle(
-                          color: isSelected ? Colors.blue : Colors.black87,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                        ),
-                      ),
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Container(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.7),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: ListView(
+                      children: options.map((option) {
+                        final isSelected = currentValues.contains(option);
+                        return CheckboxListTile(
+                          title: Text(option),
+                          value: isSelected,
+                          activeColor: Colors.blue,
+                          onChanged: (bool? value) {
+                            setModalState(() {
+                              if (value == true) {
+                                currentValues.add(option);
+                              } else {
+                                currentValues.remove(option);
+                              }
+                            });
+                            onSelected(List.from(currentValues));
+                          },
+                        );
+                      }).toList(),
                     ),
-                  );
-                }).toList(),
+                  ),
+                  const Divider(),
+                  ListTile(
+                    title: const Text('Bỏ chọn tất cả', textAlign: TextAlign.center, style: TextStyle(color: Colors.red)),
+                    onTap: () {
+                      setModalState(() {
+                        currentValues.clear();
+                      });
+                      onSelected(List.from(currentValues));
+                    },
+                  )
+                ],
               ),
-              const SizedBox(height: 16),
-            ],
-          ),
+            );
+          }
         );
       },
     );

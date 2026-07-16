@@ -16,6 +16,7 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
     on<UpdateBookingStatusEvent>(_onUpdateBookingStatus);
     on<FetchSystemCars>(_onFetchSystemCars);
     on<ApproveCarEvent>(_onApproveCar);
+    on<FetchAdminRevenue>(_onFetchAdminRevenue);
   }
 
   Future<void> _onFetchDashboardStats(FetchDashboardStats event, Emitter<AdminState> emit) async {
@@ -115,6 +116,17 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
       emit(AdminSystemCarsLoaded(cars));
     } catch (e) {
       emit(AdminError('Lỗi xử lý duyệt xe: ${e.toString()}'));
+    }
+  }
+
+  Future<void> _onFetchAdminRevenue(FetchAdminRevenue event, Emitter<AdminState> emit) async {
+    emit(AdminLoading());
+    try {
+      final bookings = await repository.getAllBookings();
+      final users = await repository.getAllUsers();
+      emit(AdminRevenueLoaded(bookings, users));
+    } catch (e) {
+      emit(AdminError('Lỗi tải thống kê doanh thu: ${e.toString()}'));
     }
   }
 }

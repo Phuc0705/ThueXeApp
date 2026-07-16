@@ -65,3 +65,13 @@ class AdminError extends AdminState {
   @override
   List<Object> get props => [message];
 }
+
+class AdminRevenueLoaded extends AdminState {
+  final List<Booking> bookings;
+  final List<UserEntity> users;
+  
+  const AdminRevenueLoaded(this.bookings, this.users);
+
+  @override
+  List<Object> get props => [bookings, users];
+}

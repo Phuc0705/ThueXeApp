@@ -10,6 +10,10 @@ class BookingModel extends Booking {
     required super.totalAmount,
     required super.status,
     super.ownerId,
+    super.addBabySeat,
+    super.addGPS,
+    super.deliveryMethod,
+    super.note,
   });
 
   factory BookingModel.fromJson(Map<String, dynamic> json) {
@@ -21,6 +25,10 @@ class BookingModel extends Booking {
       startDate: DateTime.parse(json['start_date'] ?? json['startDate']),
       endDate: DateTime.parse(json['end_date'] ?? json['endDate']),
       totalAmount: (json['total_amount'] ?? json['totalAmount'] ?? 0).toDouble(),
+      addBabySeat: json['add_baby_seat'] ?? false,
+      addGPS: json['add_gps'] ?? false,
+      deliveryMethod: json['delivery_method'] ?? 0,
+      note: json['note'] ?? '',
       status: () {
         switch (json['status']) {
           case 'pending': return BookingStatus.pending;
@@ -43,6 +51,10 @@ class BookingModel extends Booking {
       'start_date': startDate.toIso8601String().split('T')[0],
       'end_date': endDate.toIso8601String().split('T')[0],
       'total_amount': totalAmount,
+      'add_baby_seat': addBabySeat,
+      'add_gps': addGPS,
+      'delivery_method': deliveryMethod,
+      'note': note,
       'status': () {
         switch (status) {
           case BookingStatus.pending: return 'pending';

@@ -22,6 +22,10 @@ class BookingRepositoryImpl implements BookingRepository {
         totalAmount: booking.totalAmount,
         status: booking.status,
         ownerId: booking.ownerId,
+        addBabySeat: booking.addBabySeat,
+        addGPS: booking.addGPS,
+        deliveryMethod: booking.deliveryMethod,
+        note: booking.note,
       );
       final result = await remoteDataSource.createBooking(model);
       return Right(result);
