@@ -13,6 +13,7 @@ import '../../../admin/presentation/pages/admin_dashboard_page.dart';
 import '../../../admin/presentation/pages/user_management_page.dart';
 import '../../../admin/presentation/pages/system_car_approval_page.dart';
 import 'edit_profile_page.dart';
+import '../../../owner/presentation/pages/owner_revenue_page.dart';
 
 import '../../../../core/widgets/gradient_app_bar.dart';
 
@@ -75,6 +76,11 @@ class ProfilePage extends StatelessWidget {
                         create: (_) => sl<OwnerBloc>(),
                         child: const MyCarsPage(),
                       )))),
+                    _ProfileMenuTile(icon: Icons.attach_money, title: 'Thống kê doanh thu', 
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => BlocProvider(
+                        create: (_) => sl<OwnerBloc>(),
+                        child: const OwnerRevenuePage(),
+                      )))),
                   ],
 
                   if (user.role == UserRole.admin) ...[
@@ -109,20 +115,6 @@ class ProfilePage extends StatelessWidget {
         },
       ),
     );
-  }
-
-  String _getRoleName(UserRole role) {
-    switch (role) {
-      case UserRole.admin: return 'Quản trị viên';
-      case UserRole.user: return 'Người dùng';
-    }
-  }
-
-  Color _getRoleColor(UserRole role) {
-    switch (role) {
-      case UserRole.admin: return Colors.purple;
-      case UserRole.user: return Colors.blue;
-    }
   }
 }
 

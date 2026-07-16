@@ -15,6 +15,10 @@ class VNPaySimulationPage extends StatefulWidget {
   final DateTime startDate;
   final DateTime endDate;
   final double totalAmount;
+  final bool addBabySeat;
+  final bool addGPS;
+  final int deliveryMethod;
+  final String note;
 
   const VNPaySimulationPage({
     super.key,
@@ -24,6 +28,10 @@ class VNPaySimulationPage extends StatefulWidget {
     required this.startDate,
     required this.endDate,
     required this.totalAmount,
+    required this.addBabySeat,
+    required this.addGPS,
+    required this.deliveryMethod,
+    required this.note,
   });
 
   @override
@@ -77,6 +85,10 @@ class _VNPaySimulationPageState extends State<VNPaySimulationPage> {
               endDate: widget.endDate,
               totalAmount: widget.totalAmount,
               status: BookingStatus.pending,
+              addBabySeat: widget.addBabySeat,
+              addGPS: widget.addGPS,
+              deliveryMethod: widget.deliveryMethod,
+              note: widget.note,
             )
         ),
       );

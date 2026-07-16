@@ -61,3 +61,5 @@ class ApproveCarEvent extends AdminEvent {
   @override
   List<Object> get props => [carId, isApproved];
 }
+
+class FetchAdminRevenue extends AdminEvent {}

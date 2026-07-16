@@ -22,7 +22,7 @@ void main() async {
     // Khởi tạo Supabase
     await Supabase.initialize(
       url: dotenv.env['SUPABASE_URL'] ?? '',
-      anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
+      publishableKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
     );
   } catch (e) {
     debugPrint("Chưa có file .env hoặc cấu hình Supabase bị thiếu.");

@@ -4,7 +4,9 @@ import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
 import 'user_management_page.dart';
 import 'system_car_approval_page.dart';
+import 'system_car_management_page.dart';
 import 'booking_management_page.dart';
+import 'admin_revenue_page.dart';
 
 import '../../../../core/widgets/gradient_app_bar.dart';
 
@@ -58,7 +60,12 @@ class AdminDashboardPage extends StatelessWidget {
                     child: _StatCard(title: 'Duyệt xe', value: 'Chờ duyệt', color: Colors.green, icon: Icons.check_circle),
                   ),
                 ),
-                const Spacer(),
+                Expanded(
+                  child: InkWell(
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SystemCarManagementPage())),
+                    child: _StatCard(title: 'Quản lý xe', value: 'Hệ thống', color: Colors.purple, icon: Icons.directions_car),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 32),
@@ -74,7 +81,10 @@ class AdminDashboardPage extends StatelessWidget {
                 _StatCard(title: 'Tổng người dùng', value: '1,250', color: Colors.blue, icon: Icons.people),
                 _StatCard(title: 'Tổng xe', value: '450', color: Colors.green, icon: Icons.directions_car),
                 _StatCard(title: 'Đơn thuê mới', value: '12', color: Colors.orange, icon: Icons.shopping_cart),
-                _StatCard(title: 'Doanh thu tháng', value: '\$15,400', color: Colors.purple, icon: Icons.attach_money),
+                InkWell(
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminRevenuePage())),
+                  child: const _StatCard(title: 'Doanh thu hệ thống', value: 'Quản lý', color: Colors.purple, icon: Icons.attach_money),
+                ),
               ],
             ),
             const SizedBox(height: 24),
