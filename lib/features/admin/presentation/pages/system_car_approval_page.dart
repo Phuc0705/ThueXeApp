@@ -18,7 +18,7 @@ class _SystemCarApprovalPageState extends State<SystemCarApprovalPage> {
   @override
   void initState() {
     super.initState();
-    context.read<AdminBloc>().add(FetchPendingCars());
+    context.read<AdminBloc>().add(FetchSystemCars());
   }
 
   void _showConfirmDialog(String carId, String carName, bool isApprove) {
@@ -46,93 +46,131 @@ class _SystemCarApprovalPageState extends State<SystemCarApprovalPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: GradientAppBar(
-        title: 'Duyệt xe hệ thống',
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: () {
-              context.read<AdminBloc>().add(FetchPendingCars());
-            },
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: GradientAppBar(
+          title: 'Duyệt xe hệ thống',
+          bottom: const TabBar(
+            indicatorColor: Colors.white,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            tabs: [
+              Tab(text: 'Chờ duyệt'),
+              Tab(text: 'Tất cả xe'),
+            ],
           ),
-        ],
-      ),
-      body: BlocConsumer<AdminBloc, AdminState>(
-        listener: (context, state) {
-          if (state is AdminActionSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
-          } else if (state is AdminError) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message, style: const TextStyle(color: Colors.red))));
-          }
-        },
-        buildWhen: (previous, current) => current is AdminPendingCarsLoaded || current is AdminLoading || current is AdminError,
-        builder: (context, state) {
-          if (state is AdminLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is AdminPendingCarsLoaded) {
-            final cars = state.cars;
-            if (cars.isEmpty) {
-              return const Center(child: Text('Không có xe nào đang chờ duyệt.'));
-            }
-
-            return ListView.builder(
-              itemCount: cars.length,
-              padding: const EdgeInsets.all(16),
-              itemBuilder: (context, index) {
-                final carMap = cars[index];
-                final ownerName = carMap['owner_id'] ?? 'Không rõ';
-                
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  child: Column(
-                    children: [
-                      ListTile(
-                        leading: _buildCarImage(carMap),
-                        title: Text('Xe: ${carMap['name']} (${carMap['brand']})', style: const TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text('Chủ xe: $ownerName\nGiá: \$${carMap['price_per_day']}/ngày'),
-                        isThreeLine: true,
-                      ),
-                      const Divider(),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            TextButton(
-                              onPressed: () {
-                                final carModel = CarModel.fromJson(carMap);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => CarDetailScreen(car: carModel)),
-                                );
-                              },
-                              child: const Text('Xem chi tiết', style: TextStyle(color: Colors.blue)),
-                            ),
-                            const SizedBox(width: 8),
-                            OutlinedButton(
-                              onPressed: () => _showConfirmDialog(carMap['id'], carMap['name'], false),
-                              child: const Text('Từ chối', style: TextStyle(color: Colors.red)),
-                            ),
-                            const SizedBox(width: 8),
-                            ElevatedButton(
-                              onPressed: () => _showConfirmDialog(carMap['id'], carMap['name'], true),
-                              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                              child: const Text('Phê duyệt', style: TextStyle(color: Colors.white)),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                );
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh, color: Colors.white),
+              onPressed: () {
+                context.read<AdminBloc>().add(FetchSystemCars());
               },
-            );
-          }
-          return const SizedBox();
-        },
+            ),
+          ],
+        ),
+        body: BlocConsumer<AdminBloc, AdminState>(
+          listener: (context, state) {
+            if (state is AdminActionSuccess) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
+            } else if (state is AdminError) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message, style: const TextStyle(color: Colors.red))));
+            }
+          },
+          buildWhen: (previous, current) => current is AdminSystemCarsLoaded || current is AdminLoading || current is AdminError,
+          builder: (context, state) {
+            if (state is AdminLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is AdminSystemCarsLoaded) {
+              final allCars = state.cars;
+              final pendingCars = allCars.where((c) => c['status'] == 'pending').toList();
+
+              return TabBarView(
+                children: [
+                  _buildCarList(pendingCars, isPendingList: true),
+                  _buildCarList(allCars, isPendingList: false),
+                ],
+              );
+            }
+            return const SizedBox();
+          },
+        ),
       ),
     );
+  }
+
+  Widget _buildCarList(List<Map<String, dynamic>> cars, {required bool isPendingList}) {
+    if (cars.isEmpty) {
+      return Center(
+        child: Text(isPendingList ? 'Không có xe nào đang chờ duyệt.' : 'Chưa có xe nào trong hệ thống.'),
+      );
+    }
+
+    return ListView.builder(
+      itemCount: cars.length,
+      padding: const EdgeInsets.all(16),
+      itemBuilder: (context, index) {
+        final carMap = cars[index];
+        final ownerName = carMap['owner_id'] ?? 'Không rõ';
+        
+        return Card(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: Column(
+            children: [
+              ListTile(
+                leading: _buildCarImage(carMap),
+                title: Text('Xe: ${carMap['name']} (${carMap['brand']})', style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text('Chủ xe: $ownerName\nGiá: \$${carMap['price_per_day']}/ngày\nTrạng thái: ${_getStatusString(carMap['status'])}'),
+                isThreeLine: true,
+              ),
+              const Divider(),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        final carModel = CarModel.fromJson(carMap);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => CarDetailScreen(car: carModel)),
+                        );
+                      },
+                      child: const Text('Xem chi tiết', style: TextStyle(color: Colors.blue)),
+                    ),
+                    if (isPendingList) ...[
+                      const SizedBox(width: 8),
+                      OutlinedButton(
+                        onPressed: () => _showConfirmDialog(carMap['id'], carMap['name'], false),
+                        child: const Text('Từ chối', style: TextStyle(color: Colors.red)),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () => _showConfirmDialog(carMap['id'], carMap['name'], true),
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                        child: const Text('Phê duyệt', style: TextStyle(color: Colors.white)),
+                      ),
+                    ],
+                  ],
+                ),
+              )
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  String _getStatusString(String? status) {
+    switch (status) {
+      case 'available': return 'Sẵn sàng';
+      case 'pending': return 'Chờ duyệt';
+      case 'rented': return 'Đang thuê';
+      case 'rejected': return 'Bị từ chối';
+      case 'unavailable': return 'Đã ẩn';
+      default: return status ?? 'Không rõ';
+    }
   }
 
   Widget _buildCarImage(Map<String, dynamic> carMap) {

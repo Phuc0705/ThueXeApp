@@ -11,7 +11,7 @@ abstract class AdminRemoteDataSource {
   Future<void> changeUserRole(String userId, String role);
   Future<List<BookingModel>> getAllBookings();
   Future<BookingModel> updateBookingStatus(String bookingId, BookingStatus status);
-  Future<List<Map<String, dynamic>>> getPendingCars();
+  Future<List<Map<String, dynamic>>> getSystemCars();
   Future<void> approveCar(String carId, bool isApproved);
 }
 
@@ -113,11 +113,10 @@ class AdminRemoteDataSourceImpl implements AdminRemoteDataSource {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> getPendingCars() async {
+  Future<List<Map<String, dynamic>>> getSystemCars() async {
     final response = await supabase
         .from('cars')
         .select()
-        .eq('status', 'pending')
         .order('created_at', ascending: false);
     return List<Map<String, dynamic>>.from(response);
   }
@@ -125,6 +124,6 @@ class AdminRemoteDataSourceImpl implements AdminRemoteDataSource {
   @override
   Future<void> approveCar(String carId, bool isApproved) async {
     final status = isApproved ? 'available' : 'rejected';
-    await supabase.from('cars').update({'status': status}).eq('id', carId);
+    await supabase.from('cars').update({'status': status}).eq('id', carId).select().single();
   }
 }

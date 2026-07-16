@@ -45,8 +45,8 @@ class AdminRepositoryImpl implements AdminRepository {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> getPendingCars() {
-    return remoteDataSource.getPendingCars();
+  Future<List<Map<String, dynamic>>> getSystemCars() {
+    return remoteDataSource.getSystemCars();
   }
 
   @override

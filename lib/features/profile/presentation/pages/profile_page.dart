@@ -6,6 +6,8 @@ import '../../../auth/presentation/bloc/auth_event.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../booking/presentation/pages/booking_history_page.dart';
 import '../../../owner/presentation/pages/add_car_page.dart';
+import '../../../../injection_container.dart';
+import '../../../owner/presentation/bloc/owner_bloc.dart';
 import '../../../owner/presentation/pages/my_cars_page.dart';
 import '../../../admin/presentation/pages/admin_dashboard_page.dart';
 import '../../../admin/presentation/pages/user_management_page.dart';
@@ -64,9 +66,15 @@ class ProfilePage extends StatelessWidget {
                       child: Text('CHO THUÊ XE', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
                     ),
                     _ProfileMenuTile(icon: Icons.add_a_photo, title: 'Đăng ký xe cho thuê ',
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddCarPage()))),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => BlocProvider(
+                        create: (_) => sl<OwnerBloc>(),
+                        child: const AddCarPage(),
+                      )))),
                     _ProfileMenuTile(icon: Icons.list_alt, title: 'Danh sách xe của tôi', 
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MyCarsPage()))),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => BlocProvider(
+                        create: (_) => sl<OwnerBloc>(),
+                        child: const MyCarsPage(),
+                      )))),
                   ],
 
                   if (user.role == UserRole.admin) ...[

@@ -10,6 +10,9 @@ class Car extends Equatable {
   final bool isAvailable;
   final String ownerId;
   final String location;
+  final String description;
+  final int seats;
+  final String status;
 
   const Car({
     required this.id,
@@ -21,8 +24,11 @@ class Car extends Equatable {
     required this.isAvailable,
     this.ownerId = '',
     this.location = 'Quận 1',
+    this.description = '',
+    this.seats = 4,
+    this.status = 'available',
   });
 
   @override
-  List<Object?> get props => [id, name, brand, pricePerDay, imageUrl, type, isAvailable, ownerId, location];
+  List<Object?> get props => [id, name, brand, pricePerDay, imageUrl, type, isAvailable, ownerId, location, description, seats, status];
 }

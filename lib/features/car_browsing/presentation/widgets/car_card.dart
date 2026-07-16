@@ -14,7 +14,6 @@ class CarCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String seats = (car.type.toLowerCase().contains('suv') || car.type.toLowerCase().contains('mpv')) ? '7' : '5';
     String fuel = (car.type.toLowerCase().contains('electric') || car.type.toLowerCase().contains('điện')) ? 'Điện' : 
                   (car.type.toLowerCase().contains('diesel') || car.type.toLowerCase().contains('dầu')) ? 'Dầu' : 'Xăng';
 
@@ -98,60 +97,18 @@ class CarCard extends StatelessWidget {
                     },
                   ),
                 ),
-                if (!car.isAvailable)
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.red[600],
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Text(
-                        'Đã thuê',
-                        style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  )
-                else
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.blue[600],
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Text(
-                        'Có xe',
-                        style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
                 Positioned(
-                  bottom: 8,
+                  top: 8,
                   right: 8,
-                  child: InkWell(
-                    onTap: () => BookingMethodDialog.show(context),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: car.type.toLowerCase().contains('suv') ? const Color(0xFF8A2BE2) : Colors.blue,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.white, width: 1),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(car.type.toLowerCase().contains('suv') ? Icons.people_alt : Icons.key, color: Colors.white, size: 12),
-                          const SizedBox(width: 4),
-                          Text(
-                            car.type.toLowerCase().contains('suv') ? 'Gặp chủ xe' : 'Tự nhận xe',
-                            style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: !car.isAvailable ? Colors.red[600] : Colors.blue[600],
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      !car.isAvailable ? 'Đã thuê' : 'Có xe',
+                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -184,7 +141,7 @@ class CarCard extends StatelessWidget {
                     spacing: 8,
                     runSpacing: 4,
                     children: [
-                      _buildInfoChip(Icons.group_outlined, seats),
+                      _buildInfoChip(Icons.group_outlined, '${car.seats}'),
                       _buildInfoChip(Icons.auto_mode, 'Tự động'),
                       _buildInfoChip(fuel == 'Điện' ? Icons.electric_car : Icons.local_gas_station_outlined, fuel),
                     ],
