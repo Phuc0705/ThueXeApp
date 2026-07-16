@@ -81,6 +81,14 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
         .select()
         .single();
         
+    // Giải phóng xe khi đơn bị huỷ hoặc đã hoàn thành
+    if (status == BookingStatus.cancelled || status == BookingStatus.completed) {
+      await supabase
+          .from('cars')
+          .update({'status': 'available'})
+          .eq('id', response['car_id']);
+    }
+        
     return BookingModel.fromJson(response);
   }
 }

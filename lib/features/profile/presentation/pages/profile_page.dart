@@ -13,7 +13,7 @@ import '../../../admin/presentation/pages/admin_dashboard_page.dart';
 import '../../../admin/presentation/pages/user_management_page.dart';
 import '../../../admin/presentation/pages/system_car_approval_page.dart';
 import 'edit_profile_page.dart';
-import '../../../owner/presentation/pages/owner_revenue_page.dart';
+import '../../../owner/presentation/pages/revenue_page.dart';
 
 import '../../../../core/widgets/gradient_app_bar.dart';
 
@@ -79,7 +79,7 @@ class ProfilePage extends StatelessWidget {
                     _ProfileMenuTile(icon: Icons.attach_money, title: 'Thống kê doanh thu', 
                       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => BlocProvider(
                         create: (_) => sl<OwnerBloc>(),
-                        child: const OwnerRevenuePage(),
+                        child: const RevenuePage(),
                       )))),
                   ],
 

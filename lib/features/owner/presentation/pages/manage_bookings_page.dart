@@ -34,7 +34,10 @@ class _ManageBookingsPageState extends State<ManageBookingsPage> {
       appBar: const GradientAppBar(title: 'Quản lý đơn đặt xe'),
       body: BlocConsumer<BookingBloc, BookingState>(
         listener: (context, state) {
-          if (state is BookingInitial) {
+          if (state is BookingError) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message), backgroundColor: Colors.red));
+          } else if (state is BookingInitial) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cập nhật trạng thái thành công!'), backgroundColor: Colors.green));
             // Refresh
             final authState = context.read<AuthBloc>().state;
             if (authState is Authenticated) {
@@ -97,6 +100,17 @@ class _ManageBookingsPageState extends State<ManageBookingsPage> {
                                 ),
                               ),
                             ],
+                          )
+                        else if (booking.status == BookingStatus.confirmed)
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                context.read<BookingBloc>().add(UpdateBookingStatusEvent(booking.id, BookingStatus.completed));
+                              },
+                              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white),
+                              child: const Text('Đánh dấu Hoàn thành'),
+                            ),
                           ),
                       ],
                     ),

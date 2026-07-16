@@ -30,7 +30,18 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const GradientAppBar(title: 'Lịch sử thuê xe'),
-      body: BlocBuilder<BookingBloc, BookingState>(
+      body: BlocConsumer<BookingBloc, BookingState>(
+        listener: (context, state) {
+          if (state is BookingError) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message), backgroundColor: Colors.red));
+          } else if (state is BookingInitial) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Hủy đơn thành công!'), backgroundColor: Colors.green));
+            final authState = context.read<AuthBloc>().state;
+            if (authState is Authenticated) {
+              context.read<BookingBloc>().add(GetMyBookingsEvent(authState.user.id));
+            }
+          }
+        },
         builder: (context, state) {
           if (state is BookingLoading) {
             return const Center(child: CircularProgressIndicator());
@@ -89,6 +100,19 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
                             ),
                           ],
                         ),
+                        if (booking.status == BookingStatus.pending) ...[
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton(
+                              onPressed: () {
+                                context.read<BookingBloc>().add(UpdateBookingStatusEvent(booking.id, BookingStatus.cancelled));
+                              },
+                              style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
+                              child: const Text('Hủy đơn đặt xe'),
+                            ),
+                          ),
+                        ]
                       ],
                     ),
                   ),
