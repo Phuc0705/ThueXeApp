@@ -36,11 +36,24 @@ class _AdminRevenuePageState extends State<AdminRevenuePage> {
             final completedBookings = state.bookings.where((b) => b.status == BookingStatus.completed).toList();
             
             double totalAppRevenue = 0;
-            final Map<String, double> ownerSalesMap = {};
+            final Map<String, Map<String, double>> ownerSalesMap = {};
             
             for (var booking in completedBookings) {
-              totalAppRevenue += booking.totalAmount * 0.10; // 10% hoa hồng cho app
-              ownerSalesMap[booking.ownerId] = (ownerSalesMap[booking.ownerId] ?? 0) + booking.totalAmount;
+              final days = booking.endDate.difference(booking.startDate).inDays + 1;
+              final extraFees = (booking.addBabySeat ? 2.0 * days : 0) + (booking.addGPS ? 10.0 : 0) + (booking.deliveryMethod == 1 ? 15.0 : 0);
+              final baseRent = booking.totalAmount - extraFees;
+              
+              final appCommission = (baseRent * 0.10) + extraFees;
+              final ownerPayout = baseRent * 0.90;
+              
+              totalAppRevenue += appCommission;
+              
+              if (!ownerSalesMap.containsKey(booking.ownerId)) {
+                ownerSalesMap[booking.ownerId] = {'totalSales': 0, 'appCommission': 0, 'ownerPayout': 0};
+              }
+              ownerSalesMap[booking.ownerId]!['totalSales'] = ownerSalesMap[booking.ownerId]!['totalSales']! + booking.totalAmount;
+              ownerSalesMap[booking.ownerId]!['appCommission'] = ownerSalesMap[booking.ownerId]!['appCommission']! + appCommission;
+              ownerSalesMap[booking.ownerId]!['ownerPayout'] = ownerSalesMap[booking.ownerId]!['ownerPayout']! + ownerPayout;
             }
 
             if (completedBookings.isEmpty) {
@@ -73,7 +86,7 @@ class _AdminRevenuePageState extends State<AdminRevenuePage> {
                     child: Column(
                       children: [
                         const Text(
-                          'Tổng Doanh Thu (Hoa hồng 10%)',
+                          'Tổng Doanh Thu (Hoa hồng 10% + Phụ phí)',
                           style: TextStyle(color: Colors.white70, fontSize: 16),
                         ),
                         const SizedBox(height: 8),
@@ -90,9 +103,9 @@ class _AdminRevenuePageState extends State<AdminRevenuePage> {
                   
                   ...ownerSalesMap.entries.map((entry) {
                     final ownerId = entry.key;
-                    final totalSales = entry.value;
-                    final appCommission = totalSales * 0.10;
-                    final ownerPayout = totalSales * 0.90;
+                    final totalSales = entry.value['totalSales']!;
+                    final appCommission = entry.value['appCommission']!;
+                    final ownerPayout = entry.value['ownerPayout']!;
                     
                     final ownerUser = state.users.firstWhere(
                       (u) => u.id == ownerId,
@@ -156,7 +169,7 @@ class _AdminRevenuePageState extends State<AdminRevenuePage> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
-                                      const Text('Hoa hồng nền tảng (10%)', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                                      const Text('Doanh thu Admin (10% + Phụ phí)', style: TextStyle(fontSize: 12, color: Colors.grey)),
                                       const SizedBox(height: 4),
                                       Text('\$${appCommission.toStringAsFixed(0)}', style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 16)),
                                     ],

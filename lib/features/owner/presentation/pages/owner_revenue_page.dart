@@ -48,7 +48,11 @@ class _OwnerRevenuePageState extends State<OwnerRevenuePage> {
                 final Map<String, double> carRevenueMap = {};
                 
                 for (var booking in completedBookings) {
-                  final revenue = booking.totalAmount * 0.9; // 90% cho chủ xe
+                  final days = booking.endDate.difference(booking.startDate).inDays + 1;
+                  final extraFees = (booking.addBabySeat ? 2.0 * days : 0) + (booking.addGPS ? 10.0 : 0) + (booking.deliveryMethod == 1 ? 15.0 : 0);
+                  final baseRent = booking.totalAmount - extraFees;
+                  
+                  final revenue = baseRent * 0.90; // 90% tiền thuê gốc cho chủ xe
                   totalRevenue += revenue;
                   
                   carRevenueMap[booking.carId] = (carRevenueMap[booking.carId] ?? 0) + revenue;

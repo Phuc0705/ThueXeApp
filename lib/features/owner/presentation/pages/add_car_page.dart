@@ -4,8 +4,6 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/widgets/gradient_app_bar.dart';
-import '../../../auth/presentation/bloc/auth_bloc.dart';
-import '../../../auth/presentation/bloc/auth_state.dart';
 import '../bloc/owner_bloc.dart';
 import '../bloc/owner_event.dart';
 import '../bloc/owner_state.dart';
@@ -62,22 +60,7 @@ class _AddCarPageState extends State<AddCarPage> {
   }
 
   void _submitCar() {
-    final authState = context.read<AuthBloc>().state;
-    if (authState is Authenticated) {
-      final user = authState.user;
-      if (user.fullName.trim().isEmpty || 
-          user.phoneNumber == null || user.phoneNumber!.trim().isEmpty || 
-          user.idCard == null || user.idCard!.trim().isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Vui lòng cập nhật đầy đủ thông tin (SĐT, CCCD) trong Hồ sơ trước khi đăng ký xe!'),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 4),
-          )
-        );
-        return;
-      }
-    }
+
 
     if (!_formKey.currentState!.validate()) return;
     if (_selectedBrand == 'Khác' && _customBrandController.text.trim().isEmpty) {
