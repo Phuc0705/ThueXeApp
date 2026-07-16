@@ -57,8 +57,8 @@ class _VNPaySimulationPageState extends State<VNPaySimulationPage> {
   // ⭐ Getter tạo link ảnh VietQR tự động
   String get _vietQrUrl {
     int amount = (widget.totalAmount * VietQRConfig.usdToVndRate).toInt();
-    final bank = VietQRConfig.bankCode;
-    final accNum = VietQRConfig.accountNumber;
+    const bank = VietQRConfig.bankCode;
+    const accNum = VietQRConfig.accountNumber;
     // Cần encode URL cho các text có dấu cách hoặc tiếng Việt
     final accName = Uri.encodeComponent(VietQRConfig.accountName);
     final desc = Uri.encodeComponent('Dat xe $_bookingId');
@@ -71,7 +71,7 @@ class _VNPaySimulationPageState extends State<VNPaySimulationPage> {
 
     // Giả lập thời gian xử lý thanh toán của ngân hàng (2-3 giây)
     Future.delayed(const Duration(seconds: 2), () {
-      if (!mounted) return;
+      if (!context.mounted) return;
 
       // Gọi Bloc để tạo đơn hàng mới trên Supabase
       context.read<BookingBloc>().add(
@@ -137,7 +137,7 @@ class _VNPaySimulationPageState extends State<VNPaySimulationPage> {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 12,
                         spreadRadius: 2,
                       )

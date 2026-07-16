@@ -90,7 +90,7 @@ class _SystemCarManagementPageState extends State<SystemCarManagementPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF4A00E0).withOpacity(0.1) : Colors.white,
+          color: isSelected ? const Color(0xFF4A00E0).withValues(alpha: 0.1) : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: isSelected ? const Color(0xFF4A00E0) : Colors.grey[300]!),
         ),
@@ -218,7 +218,6 @@ class _SystemCarManagementPageState extends State<SystemCarManagementPage> {
       padding: const EdgeInsets.all(16),
       itemBuilder: (context, index) {
         final carMap = cars[index];
-        final ownerName = carMap['owner_id'] ?? 'Không rõ';
         
         return Card(
           margin: const EdgeInsets.only(bottom: 16),

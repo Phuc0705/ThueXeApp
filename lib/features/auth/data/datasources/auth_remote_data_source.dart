@@ -1,6 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/user_model.dart';
-import '../../domain/entities/user_entity.dart';
 
 abstract class AuthRemoteDataSource {
   Future<UserModel> login(String email, String password);

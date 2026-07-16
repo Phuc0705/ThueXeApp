@@ -3,9 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
-import '../../domain/entities/booking.dart';
 import '../../presentation/bloc/booking_bloc.dart';
-import '../../presentation/bloc/booking_event.dart';
 import '../../presentation/bloc/booking_state.dart';
 import '../../../car_browsing/domain/entities/car.dart';
 import '../../../car_browsing/presentation/bloc/car_bloc.dart';
@@ -150,7 +148,7 @@ class _BookingPageState extends State<BookingPage> {
       body: BlocConsumer<BookingBloc, BookingState>(
         listener: (context, state) {
           if (state is BookingSuccess) {
-            context.read<CarBloc>().add(FetchCarsEvent());
+            context.read<CarBloc>().add(const FetchCarsEvent());
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Đặt xe thành công!'), backgroundColor: Colors.green),
             );
@@ -304,18 +302,24 @@ class _BookingPageState extends State<BookingPage> {
                         padding: EdgeInsets.symmetric(vertical: 8.0),
                         child: Text('Hình thức nhận xe', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                       ),
+                      // ignore: deprecated_member_use
                       RadioListTile<int>(
                         title: const Text('Tự đến bãi lấy xe (Miễn phí)'),
                         value: 0,
+                        // ignore: deprecated_member_use
                         groupValue: _deliveryMethod,
                         contentPadding: EdgeInsets.zero,
+                        // ignore: deprecated_member_use
                         onChanged: (int? value) => setState(() => _deliveryMethod = value!),
                       ),
+                      // ignore: deprecated_member_use
                       RadioListTile<int>(
                         title: const Text('Giao xe tận nơi (+\$15)'),
                         value: 1,
+                        // ignore: deprecated_member_use
                         groupValue: _deliveryMethod,
                         contentPadding: EdgeInsets.zero,
+                        // ignore: deprecated_member_use
                         onChanged: (int? value) => setState(() => _deliveryMethod = value!),
                       ),
                       const Divider(),

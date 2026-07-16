@@ -39,14 +39,14 @@ class AdminDashboardPage extends StatelessWidget {
                 Expanded(
                   child: InkWell(
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UserManagementPage())),
-                    child: _StatCard(title: 'Người dùng', value: 'Quản lý', color: Colors.blue, icon: Icons.people),
+                    child: const _StatCard(title: 'Người dùng', value: 'Quản lý', color: Colors.blue, icon: Icons.people),
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: InkWell(
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BookingManagementPage())),
-                    child: _StatCard(title: 'Đơn đặt xe', value: 'Quản lý', color: Colors.orange, icon: Icons.assignment),
+                    child: const _StatCard(title: 'Đơn đặt xe', value: 'Quản lý', color: Colors.orange, icon: Icons.assignment),
                   ),
                 ),
               ],
@@ -57,13 +57,13 @@ class AdminDashboardPage extends StatelessWidget {
                 Expanded(
                   child: InkWell(
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SystemCarApprovalPage())),
-                    child: _StatCard(title: 'Duyệt xe', value: 'Chờ duyệt', color: Colors.green, icon: Icons.check_circle),
+                    child: const _StatCard(title: 'Duyệt xe', value: 'Chờ duyệt', color: Colors.green, icon: Icons.check_circle),
                   ),
                 ),
                 Expanded(
                   child: InkWell(
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SystemCarManagementPage())),
-                    child: _StatCard(title: 'Quản lý xe', value: 'Hệ thống', color: Colors.purple, icon: Icons.directions_car),
+                    child: const _StatCard(title: 'Quản lý xe', value: 'Hệ thống', color: Colors.purple, icon: Icons.directions_car),
                   ),
                 ),
               ],
@@ -78,9 +78,9 @@ class AdminDashboardPage extends StatelessWidget {
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
               children: [
-                _StatCard(title: 'Tổng người dùng', value: '1,250', color: Colors.blue, icon: Icons.people),
-                _StatCard(title: 'Tổng xe', value: '450', color: Colors.green, icon: Icons.directions_car),
-                _StatCard(title: 'Đơn thuê mới', value: '12', color: Colors.orange, icon: Icons.shopping_cart),
+                const _StatCard(title: 'Tổng người dùng', value: '1,250', color: Colors.blue, icon: Icons.people),
+                const _StatCard(title: 'Tổng xe', value: '450', color: Colors.green, icon: Icons.directions_car),
+                const _StatCard(title: 'Đơn thuê mới', value: '12', color: Colors.orange, icon: Icons.shopping_cart),
                 InkWell(
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminRevenuePage())),
                   child: const _StatCard(title: 'Doanh thu hệ thống', value: 'Quản lý', color: Colors.purple, icon: Icons.attach_money),
@@ -139,7 +139,7 @@ class _StatCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: color, size: 28),
