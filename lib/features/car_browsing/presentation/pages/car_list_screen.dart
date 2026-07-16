@@ -9,7 +9,10 @@ import '../../domain/entities/car.dart';
 import '../bloc/car_bloc.dart';
 import '../bloc/car_event.dart';
 import '../bloc/car_state.dart';
+import '../bloc/favorite_cubit.dart';
 import '../widgets/car_card.dart';
+import 'search_car_screen.dart';
+import 'favorite_cars_screen.dart';
 
 class CarListScreen extends StatefulWidget {
   const CarListScreen({super.key});
@@ -62,6 +65,12 @@ class _CarListScreenState extends State<CarListScreen> {
                 },
                 child: const Text('Đăng nhập', style: TextStyle(color: Colors.blue)),
               );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.favorite, color: Colors.red),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const FavoriteCarsScreen()));
             },
           ),
           const SizedBox(width: 8),
@@ -117,12 +126,19 @@ class _CarListScreenState extends State<CarListScreen> {
                   final availableCars = filteredCars.where((c) => c.isAvailable).toList();
                   final otherCars = filteredCars.where((c) => !c.isAvailable).toList();
 
-                  return Column(
-                    children: [
-                      _buildCarSection('Xe có ngay', availableCars.isNotEmpty ? availableCars : filteredCars),
-                      _buildCarSection('Tất cả xe', otherCars.isNotEmpty ? otherCars : filteredCars),
-                      const SizedBox(height: 40),
-                    ],
+                  return BlocBuilder<FavoriteCubit, List<String>>(
+                    builder: (context, favorites) {
+                      final favoriteCarList = filteredCars.where((c) => favorites.contains(c.id)).toList();
+
+                      return Column(
+                        children: [
+                          _buildCarSection('Xe yêu thích', favoriteCarList, isFavoriteSection: true),
+                          _buildCarSection('Xe có ngay', availableCars.isNotEmpty ? availableCars : filteredCars),
+                          _buildCarSection('Tất cả xe', otherCars.isNotEmpty ? otherCars : filteredCars),
+                          const SizedBox(height: 40),
+                        ],
+                      );
+                    },
                   );
                 } else if (state is CarError) {
                   return Padding(
@@ -139,7 +155,7 @@ class _CarListScreenState extends State<CarListScreen> {
     );
   }
 
-  Widget _buildCarSection(String title, List<Car> cars) {
+  Widget _buildCarSection(String title, List<Car> cars, {bool isFavoriteSection = false}) {
     if (cars.isEmpty) return const SizedBox();
     
     return Column(
@@ -155,7 +171,15 @@ class _CarListScreenState extends State<CarListScreen> {
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               InkWell(
-                onTap: () {},
+                onTap: () {
+                  if (isFavoriteSection) {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const FavoriteCarsScreen()));
+                  } else {
+                    Navigator.push(context, MaterialPageRoute(
+                      builder: (_) => SearchCarScreen(title: title, cars: cars),
+                    ));
+                  }
+                },
                 child: const Text(
                   'Xem thêm >',
                   style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),

@@ -31,10 +31,24 @@ class FavoriteCarsScreen extends StatelessWidget {
                   return const Center(child: Text('Không tìm thấy dữ liệu các chiếc xe yêu thích.'));
                 }
 
-                return ListView.builder(
+                return GridView.builder(
+                  padding: const EdgeInsets.all(16),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 0.65,
+                  ),
                   itemCount: favoriteCars.length,
                   itemBuilder: (context, index) {
-                    return CarCard(car: favoriteCars[index]);
+                    return SizedBox(
+                      width: double.infinity,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.topCenter,
+                        child: CarCard(car: favoriteCars[index]),
+                      ),
+                    );
                   },
                 );
               } else if (carState is CarError) {

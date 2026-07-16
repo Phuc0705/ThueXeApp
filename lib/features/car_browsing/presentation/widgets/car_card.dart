@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../domain/entities/car.dart';
 import '../pages/car_detail_screen.dart';
 import 'booking_method_dialog.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/favorite_cubit.dart';
 
 class CarCard extends StatelessWidget {
   final Car car;
@@ -56,6 +58,32 @@ class CarCard extends StatelessWidget {
                             errorBuilder: (context, error, stackTrace) => const Icon(Icons.directions_car, size: 50, color: Colors.grey),
                           )
                         : const Icon(Icons.directions_car, size: 50, color: Colors.grey),
+                  ),
+                ),
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: BlocBuilder<FavoriteCubit, List<String>>(
+                    builder: (context, favorites) {
+                      final isFavorite = favorites.contains(car.id);
+                      return InkWell(
+                        onTap: () {
+                          context.read<FavoriteCubit>().toggleFavorite(car.id);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.3),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            isFavorite ? Icons.favorite : Icons.favorite_border,
+                            color: isFavorite ? Colors.red : Colors.white,
+                            size: 18,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
                 if (!car.isAvailable)
