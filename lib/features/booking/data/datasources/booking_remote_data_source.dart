@@ -6,7 +6,7 @@ abstract class BookingRemoteDataSource {
   Future<BookingModel> createBooking(BookingModel booking);
   Future<List<BookingModel>> getMyBookings(String userId);
   Future<List<BookingModel>> getOwnerBookings(String ownerId);
-  Future<BookingModel> updateBookingStatus(String bookingId, BookingStatus status);
+  Future<BookingModel> updateBookingStatus(String bookingId, BookingStatus status, {String? cancelReason});
 }
 
 class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
@@ -65,7 +65,7 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
   }
 
   @override
-  Future<BookingModel> updateBookingStatus(String bookingId, BookingStatus status) async {
+  Future<BookingModel> updateBookingStatus(String bookingId, BookingStatus status, {String? cancelReason}) async {
     String statusStr = 'pending';
     switch (status) {
       case BookingStatus.pending: statusStr = 'pending'; break;
@@ -74,12 +74,25 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
       case BookingStatus.cancelled: statusStr = 'cancelled'; break;
     }
 
+    final updateData = <String, dynamic>{'status': statusStr};
+    if (status == BookingStatus.cancelled && cancelReason != null) {
+      updateData['cancel_reason'] = cancelReason;
+    }
+
     final response = await supabase
         .from('bookings')
-        .update({'status': statusStr})
+        .update(updateData)
         .eq('id', bookingId)
         .select()
         .single();
+        
+    // Nhả xe nếu hoàn thành hoặc hủy
+    if (statusStr == 'completed' || statusStr == 'cancelled') {
+      final carId = response['car_id'];
+      if (carId != null) {
+        await supabase.from('cars').update({'status': 'available'}).eq('id', carId);
+      }
+    }
         
     return BookingModel.fromJson(response);
   }

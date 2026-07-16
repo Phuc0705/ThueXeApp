@@ -8,7 +8,7 @@ abstract class AdminRepository {
   Future<void> deleteUser(String userId);
   Future<void> changeUserRole(String userId, String role);
   Future<List<Booking>> getAllBookings();
-  Future<Booking> updateBookingStatus(String bookingId, BookingStatus status);
+  Future<Booking> updateBookingStatus(String bookingId, BookingStatus status, {String? cancelReason});
   Future<List<Map<String, dynamic>>> getSystemCars();
   Future<void> approveCar(String carId, bool isApproved);
 }

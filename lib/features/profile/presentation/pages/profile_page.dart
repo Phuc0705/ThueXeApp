@@ -67,10 +67,22 @@ class ProfilePage extends StatelessWidget {
                       child: Text('CHO THUÊ XE', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
                     ),
                     _ProfileMenuTile(icon: Icons.add_a_photo, title: 'Đăng ký xe cho thuê ',
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => BlocProvider(
-                        create: (_) => sl<OwnerBloc>(),
-                        child: const AddCarPage(),
-                      )))),
+                      onTap: () {
+                        if (user.phoneNumber == null || user.phoneNumber!.trim().isEmpty || 
+                            user.idCard == null || user.idCard!.trim().isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Vui lòng cập nhật số điện thoại và CCCD trong phần Chỉnh sửa thông tin cá nhân trước khi đăng ký xe!'),
+                              backgroundColor: Colors.red,
+                            )
+                          );
+                          return;
+                        }
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => BlocProvider(
+                          create: (_) => sl<OwnerBloc>(),
+                          child: const AddCarPage(),
+                        )));
+                      }),
                     _ProfileMenuTile(icon: Icons.list_alt, title: 'Danh sách xe của tôi', 
                       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => BlocProvider(
                         create: (_) => sl<OwnerBloc>(),

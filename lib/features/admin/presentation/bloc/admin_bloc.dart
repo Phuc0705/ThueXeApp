@@ -89,7 +89,7 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
 
   Future<void> _onUpdateBookingStatus(UpdateBookingStatusEvent event, Emitter<AdminState> emit) async {
     try {
-      await repository.updateBookingStatus(event.bookingId, event.status);
+      await repository.updateBookingStatus(event.bookingId, event.status, cancelReason: event.cancelReason);
       final bookings = await repository.getAllBookings();
       emit(const AdminActionSuccess('Cập nhật trạng thái thành công'));
       emit(AdminBookingsLoaded(bookings));

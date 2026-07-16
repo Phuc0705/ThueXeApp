@@ -10,7 +10,7 @@ abstract class AdminRemoteDataSource {
   Future<void> deleteUser(String userId);
   Future<void> changeUserRole(String userId, String role);
   Future<List<BookingModel>> getAllBookings();
-  Future<BookingModel> updateBookingStatus(String bookingId, BookingStatus status);
+  Future<BookingModel> updateBookingStatus(String bookingId, BookingStatus status, {String? cancelReason});
   Future<List<Map<String, dynamic>>> getSystemCars();
   Future<void> approveCar(String carId, bool isApproved);
 }
@@ -86,14 +86,14 @@ class AdminRemoteDataSourceImpl implements AdminRemoteDataSource {
   Future<List<BookingModel>> getAllBookings() async {
     final response = await supabase
         .from('bookings')
-        .select()
+        .select('*, cars(name, image_urls, profiles(full_name, phone)), profiles(full_name)')
         .order('created_at', ascending: false);
     
     return (response as List).map((json) => BookingModel.fromJson(json)).toList();
   }
 
   @override
-  Future<BookingModel> updateBookingStatus(String bookingId, BookingStatus status) async {
+  Future<BookingModel> updateBookingStatus(String bookingId, BookingStatus status, {String? cancelReason}) async {
     String statusStr = 'pending';
     switch (status) {
       case BookingStatus.pending: statusStr = 'pending'; break;
@@ -102,12 +102,25 @@ class AdminRemoteDataSourceImpl implements AdminRemoteDataSource {
       case BookingStatus.cancelled: statusStr = 'cancelled'; break;
     }
 
+    final updateData = <String, dynamic>{'status': statusStr};
+    if (status == BookingStatus.cancelled && cancelReason != null) {
+      updateData['cancel_reason'] = cancelReason;
+    }
+
     final response = await supabase
         .from('bookings')
-        .update({'status': statusStr})
+        .update(updateData)
         .eq('id', bookingId)
         .select()
         .single();
+        
+    // Nhả xe nếu hoàn thành hoặc hủy
+    if (statusStr == 'completed' || statusStr == 'cancelled') {
+      final carId = response['car_id'];
+      if (carId != null) {
+        await supabase.from('cars').update({'status': 'available'}).eq('id', carId);
+      }
+    }
     
     return BookingModel.fromJson(response);
   }

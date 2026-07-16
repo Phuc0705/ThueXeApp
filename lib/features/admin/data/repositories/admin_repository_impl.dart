@@ -40,8 +40,8 @@ class AdminRepositoryImpl implements AdminRepository {
   }
 
   @override
-  Future<BookingModel> updateBookingStatus(String bookingId, BookingStatus status) {
-    return remoteDataSource.updateBookingStatus(bookingId, status);
+  Future<BookingModel> updateBookingStatus(String bookingId, BookingStatus status, {String? cancelReason}) {
+    return remoteDataSource.updateBookingStatus(bookingId, status, cancelReason: cancelReason);
   }
 
   @override
