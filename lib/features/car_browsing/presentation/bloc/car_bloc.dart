@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../domain/usecases/get_cars.dart';
 import 'car_event.dart';
 import 'car_state.dart';

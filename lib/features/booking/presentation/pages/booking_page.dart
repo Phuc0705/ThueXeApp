@@ -3,9 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
-import '../../domain/entities/booking.dart'; // ignore: unused_import
 import '../../presentation/bloc/booking_bloc.dart';
-import '../../presentation/bloc/booking_event.dart'; // ignore: unused_import
 import '../../presentation/bloc/booking_state.dart';
 import '../../../car_browsing/domain/entities/car.dart';
 import '../../../car_browsing/presentation/bloc/car_bloc.dart';
@@ -304,6 +302,7 @@ class _BookingPageState extends State<BookingPage> {
                         padding: EdgeInsets.symmetric(vertical: 8.0),
                         child: Text('Hình thức nhận xe', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                       ),
+                      // ignore: deprecated_member_use
                       RadioListTile<int>(
                         title: const Text('Tự đến bãi lấy xe (Miễn phí)'),
                         value: 0,
@@ -313,6 +312,7 @@ class _BookingPageState extends State<BookingPage> {
                         // ignore: deprecated_member_use
                         onChanged: (int? value) => setState(() => _deliveryMethod = value!),
                       ),
+                      // ignore: deprecated_member_use
                       RadioListTile<int>(
                         title: const Text('Giao xe tận nơi (+\$15)'),
                         value: 1,
