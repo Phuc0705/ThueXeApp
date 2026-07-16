@@ -70,12 +70,15 @@ class _BookingPageState extends State<BookingPage> {
   }
 
   double _calculateTotal() {
-    if (_selectedDateRange == null) return 0;
-    final days = _selectedDateRange!.duration.inDays + 1;
-    double total = days * widget.car.pricePerDay;
+    double total = 0;
+    
+    if (_selectedDateRange != null) {
+      final days = _selectedDateRange!.duration.inDays + 1;
+      total += days * widget.car.pricePerDay;
+      if (_addBabySeat) total += (days * 2.0); // 2$/ngày
+    }
 
-    // Phụ kiện & Dịch vụ đi kèm
-    if (_addBabySeat) total += (days * 2.0); // 2$/ngày
+    // Phụ kiện & Dịch vụ đi kèm cố định
     if (_addGPS) total += 10.0; // 10$ trọn gói
 
     // Hình thức nhận xe
@@ -116,7 +119,7 @@ class _BookingPageState extends State<BookingPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text('Tổng cộng', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    Text('\$${_calculateTotal().toStringAsFixed(0)}',
+                    Text('\$${_calculateTotal().toStringAsFixed(2)}',
                         style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.blue)),
                   ],
                 ),
@@ -135,7 +138,7 @@ class _BookingPageState extends State<BookingPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(title, style: const TextStyle(fontSize: 15, color: Colors.grey)),
-          Text('\$${price.toStringAsFixed(0)}', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+          Text('\$${price.toStringAsFixed(2)}', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -174,7 +177,7 @@ class _BookingPageState extends State<BookingPage> {
                   child: ListTile(
                     leading: const Icon(Icons.directions_car),
                     title: Text(widget.car.name),
-                    subtitle: Text('${widget.car.brand} • \$${widget.car.pricePerDay.toStringAsFixed(0)}/ngày'),
+                    subtitle: Text('${widget.car.brand} • \$${widget.car.pricePerDay.toStringAsFixed(2)}/ngày'),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -349,7 +352,7 @@ class _BookingPageState extends State<BookingPage> {
                       ],
                     ),
                     Text(
-                      '\$${_calculateTotal().toStringAsFixed(0)}',
+                      '\$${_calculateTotal().toStringAsFixed(2)}',
                       style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue),
                     ),
                   ],

@@ -167,7 +167,7 @@ class _BookingManagementPageState extends State<BookingManagementPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Tổng tiền: \$${booking.totalAmount.toStringAsFixed(0)}',
+                              'Tổng tiền: \$${booking.totalAmount.toStringAsFixed(2)}',
                               style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
                             ),
                             if (booking.status == BookingStatus.confirmed)

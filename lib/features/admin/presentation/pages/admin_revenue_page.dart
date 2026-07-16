@@ -35,7 +35,7 @@ class _AdminRevenuePageState extends State<AdminRevenuePage> {
             return Center(child: Text(state.message));
           }
           if (state is AdminRevenueLoaded) {
-            final completedBookings = state.bookings.where((b) => b.status == BookingStatus.completed).toList();
+            final completedBookings = state.bookings.where((b) => b.status == BookingStatus.completed || b.status == BookingStatus.confirmed).toList();
             
             double totalAppRevenue = 0;
             final Map<String, Map<String, double>> ownerSalesMap = {};
@@ -93,7 +93,7 @@ class _AdminRevenuePageState extends State<AdminRevenuePage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          '\$${totalAppRevenue.toStringAsFixed(0)}',
+                          '\$${totalAppRevenue.toStringAsFixed(2)}',
                           style: const TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -147,36 +147,28 @@ class _AdminRevenuePageState extends State<AdminRevenuePage> {
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     const Text('Tổng GD', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                                    Text('\$${totalSales.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                    Text('\$${totalSales.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                                   ],
                                 ),
                               ],
                             ),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 12.0),
-                              child: Divider(height: 1),
-                            ),
+                            const Divider(height: 24),
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Text('Thanh toán cho Chủ xe (90%)', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                                      const SizedBox(height: 4),
-                                      Text('\$${ownerPayout.toStringAsFixed(0)}', style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 16)),
-                                    ],
-                                  ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text('Doanh thu Chủ xe (Tiền thuê 90%)', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                                    Text('\$${ownerPayout.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
+                                  ],
                                 ),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      const Text('Doanh thu Admin (10% + Phụ phí)', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                                      const SizedBox(height: 4),
-                                      Text('\$${appCommission.toStringAsFixed(0)}', style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 16)),
-                                    ],
-                                  ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    const Text('Doanh thu Admin (10% + Phụ phí)', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                                    Text('\$${appCommission.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)),
+                                  ],
                                 ),
                               ],
                             ),
