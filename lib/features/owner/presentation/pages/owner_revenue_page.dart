@@ -43,7 +43,7 @@ class _OwnerRevenuePageState extends State<OwnerRevenuePage> {
               }
 
               if (bookingState is OwnerBookingsLoaded && ownerState is OwnerCarsLoaded) {
-                final completedBookings = bookingState.bookings.where((b) => b.status == BookingStatus.completed).toList();
+                final completedBookings = bookingState.bookings.where((b) => b.status == BookingStatus.completed || b.status == BookingStatus.confirmed).toList();
                 
                 double totalRevenue = 0;
                 final Map<String, double> carRevenueMap = {};
@@ -94,7 +94,7 @@ class _OwnerRevenuePageState extends State<OwnerRevenuePage> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              '\$${totalRevenue.toStringAsFixed(0)}',
+                              '\$${totalRevenue.toStringAsFixed(2)}',
                               style: const TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 8),
@@ -137,7 +137,7 @@ class _OwnerRevenuePageState extends State<OwnerRevenuePage> {
                             title: Text(car.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                             subtitle: Text(car.type),
                             trailing: Text(
-                              '+\$${revenue.toStringAsFixed(0)}',
+                              '+\$${revenue.toStringAsFixed(2)}',
                               style: const TextStyle(color: Colors.green, fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                           ),
