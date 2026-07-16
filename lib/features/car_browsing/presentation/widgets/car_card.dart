@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/car.dart';
 import '../pages/car_detail_screen.dart';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/favorite_cubit.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
@@ -156,7 +155,7 @@ class CarCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '\$${car.pricePerDay.toStringAsFixed(0)}',
+                            '\$${car.pricePerDay.toStringAsFixed(2)}',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,

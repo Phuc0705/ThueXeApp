@@ -80,7 +80,7 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
                           children: [
                             const Text('Tổng thanh toán:', style: TextStyle(color: Colors.grey)),
                             Text(
-                              '\$${booking.totalAmount.toStringAsFixed(0)}',
+                              '\$${booking.totalAmount.toStringAsFixed(2)}',
                               style: const TextStyle(
                                 fontSize: 18, 
                                 fontWeight: FontWeight.bold, 

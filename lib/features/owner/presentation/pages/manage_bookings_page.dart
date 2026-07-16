@@ -72,7 +72,7 @@ class _ManageBookingsPageState extends State<ManageBookingsPage> {
                         Text('Khách hàng ID: ${booking.userId.substring(0, 8)}...'),
                         Text('Thời gian: ${DateFormat('dd/MM/yyyy').format(booking.startDate)} - ${DateFormat('dd/MM/yyyy').format(booking.endDate)}'),
                         const SizedBox(height: 8),
-                        Text('Tổng thu: \$${booking.totalAmount.toStringAsFixed(0)}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green)),
+                        Text('Tổng thu: \$${booking.totalAmount.toStringAsFixed(2)}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green)),
                         const SizedBox(height: 16),
                         if (booking.status == BookingStatus.pending)
                           Row(

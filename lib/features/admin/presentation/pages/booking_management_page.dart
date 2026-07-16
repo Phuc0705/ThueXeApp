@@ -22,35 +22,7 @@ class _BookingManagementPageState extends State<BookingManagementPage> {
     context.read<AdminBloc>().add(FetchAllBookings());
   }
 
-  void _showStatusDialog(Booking booking) {
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          title: const Text('Cập nhật trạng thái đơn'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: const Text('Hoàn thành'),
-                onTap: () {
-                  context.read<AdminBloc>().add(UpdateBookingStatusEvent(booking.id, BookingStatus.completed));
-                  Navigator.pop(ctx);
-                },
-              ),
-              ListTile(
-                title: const Text('Hủy đơn'),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _showCancelReasonDialog(booking);
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+
 
   void _showCancelReasonDialog(Booking booking) {
     final TextEditingController reasonController = TextEditingController();
@@ -211,13 +183,15 @@ class _BookingManagementPageState extends State<BookingManagementPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Tổng tiền: \$${booking.totalAmount.toStringAsFixed(0)}',
+                              'Tổng tiền: \$${booking.totalAmount.toStringAsFixed(2)}',
                               style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
                             ),
-                            ElevatedButton(
-                              onPressed: () => _showStatusDialog(booking),
-                              child: const Text('Cập nhật'),
-                            ),
+                            if (booking.status == BookingStatus.confirmed)
+                              ElevatedButton(
+                                onPressed: () => _showCancelReasonDialog(booking),
+                                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                                child: const Text('Hủy đơn', style: TextStyle(color: Colors.white)),
+                              ),
                           ],
                         ),
                       ],

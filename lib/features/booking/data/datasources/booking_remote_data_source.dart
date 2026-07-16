@@ -31,6 +31,19 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
     return BookingModel.fromJson(response);
   }
 
+  Future<List<BookingModel>> _autoCompleteBookings(List<dynamic> jsonList) async {
+    final List<BookingModel> result = [];
+    final now = DateTime.now();
+    for (var json in jsonList) {
+      var booking = BookingModel.fromJson(json);
+      if (booking.status == BookingStatus.confirmed && booking.endDate.difference(now).isNegative) {
+        booking = await updateBookingStatus(booking.id, BookingStatus.completed);
+      }
+      result.add(booking);
+    }
+    return result;
+  }
+
   @override
   Future<List<BookingModel>> getMyBookings(String userId) async {
     final response = await supabase
@@ -39,7 +52,7 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
         .eq('customer_id', userId)
         .order('created_at', ascending: false);
         
-    return (response as List).map((json) => BookingModel.fromJson(json)).toList();
+    return _autoCompleteBookings(response as List);
   }
 
   @override
@@ -61,7 +74,7 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
         .inFilter('car_id', carIds)
         .order('created_at', ascending: false);
         
-    return (response as List).map((json) => BookingModel.fromJson(json)).toList();
+    return _autoCompleteBookings(response as List);
   }
 
   @override

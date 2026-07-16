@@ -72,17 +72,19 @@ class ProfilePage extends StatelessWidget {
                             user.idCard == null || user.idCard!.trim().isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Vui lòng cập nhật số điện thoại và CCCD trong phần Chỉnh sửa thông tin cá nhân trước khi đăng ký xe!'),
+                              content: Text('Vui lòng cập nhật đầy đủ thông tin (SĐT, CCCD) trước khi đăng ký xe!'),
                               backgroundColor: Colors.red,
-                            )
+                              duration: Duration(seconds: 4),
+                            ),
                           );
-                          return;
+                        } else {
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => BlocProvider(
+                            create: (_) => sl<OwnerBloc>(),
+                            child: const AddCarPage(),
+                          )));
                         }
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => BlocProvider(
-                          create: (_) => sl<OwnerBloc>(),
-                          child: const AddCarPage(),
-                        )));
-                      }),
+                      },
+                    ),
                     _ProfileMenuTile(icon: Icons.list_alt, title: 'Danh sách xe của tôi', 
                       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => BlocProvider(
                         create: (_) => sl<OwnerBloc>(),
