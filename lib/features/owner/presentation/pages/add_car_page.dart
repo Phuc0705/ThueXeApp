@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../../core/widgets/gradient_app_bar.dart';
 
 class AddCarPage extends StatefulWidget {
   const AddCarPage({super.key});
@@ -147,7 +148,7 @@ class _AddCarPageState extends State<AddCarPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Đăng ký xe cho thuê')),
+      appBar: const GradientAppBar(title: 'Đăng ký xe cho thuê'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(

@@ -6,6 +6,8 @@ import '../bloc/admin_bloc.dart';
 import '../bloc/admin_event.dart';
 import '../bloc/admin_state.dart';
 
+import '../../../../core/widgets/gradient_app_bar.dart';
+
 class BookingManagementPage extends StatefulWidget {
   const BookingManagementPage({super.key});
 
@@ -60,11 +62,11 @@ class _BookingManagementPageState extends State<BookingManagementPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Quản lý đơn đặt xe'),
+      appBar: GradientAppBar(
+        title: 'Quản lý đơn đặt xe',
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh, color: Colors.white),
             onPressed: () {
               context.read<AdminBloc>().add(FetchAllBookings());
             },
@@ -91,7 +93,6 @@ class _BookingManagementPageState extends State<BookingManagementPage> {
               itemCount: bookings.length,
               itemBuilder: (context, index) {
                 final booking = bookings[index];
-                final formatCurrency = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
                 final formatDate = DateFormat('dd/MM/yyyy');
 
                 return Card(
@@ -118,7 +119,7 @@ class _BookingManagementPageState extends State<BookingManagementPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Tổng tiền: ${formatCurrency.format(booking.totalAmount)}',
+                              'Tổng tiền: \$${booking.totalAmount.toStringAsFixed(0)}',
                               style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
                             ),
                             ElevatedButton(

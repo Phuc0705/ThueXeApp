@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/car.dart';
 import '../widgets/car_card.dart';
+import '../../../../core/widgets/gradient_app_bar.dart';
 
 class SearchCarScreen extends StatelessWidget {
   final String title;
@@ -16,14 +17,8 @@ class SearchCarScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
-        ),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+      appBar: GradientAppBar(
+        title: title,
       ),
       body: cars.isEmpty
           ? const Center(child: Text('Không tìm thấy xe phù hợp.'))

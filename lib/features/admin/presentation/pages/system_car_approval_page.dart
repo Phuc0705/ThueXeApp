@@ -5,6 +5,7 @@ import '../bloc/admin_event.dart';
 import '../bloc/admin_state.dart';
 import '../../../car_browsing/presentation/pages/car_detail_screen.dart';
 import '../../../car_browsing/data/models/car_model.dart';
+import '../../../../core/widgets/gradient_app_bar.dart';
 
 class SystemCarApprovalPage extends StatefulWidget {
   const SystemCarApprovalPage({super.key});
@@ -46,11 +47,11 @@ class _SystemCarApprovalPageState extends State<SystemCarApprovalPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Duyệt xe hệ thống'),
+      appBar: GradientAppBar(
+        title: 'Duyệt xe hệ thống',
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh, color: Colors.white),
             onPressed: () {
               context.read<AdminBloc>().add(FetchPendingCars());
             },

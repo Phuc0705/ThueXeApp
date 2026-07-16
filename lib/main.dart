@@ -49,8 +49,13 @@ class MyApp extends StatelessWidget {
         title: 'Thue Xe App',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF4A00E0)),
           useMaterial3: true,
+          appBarTheme: const AppBarTheme(
+            elevation: 0,
+            centerTitle: true,
+            foregroundColor: Colors.white,
+          ),
           scaffoldBackgroundColor: Colors.grey[50],
         ),
         home: const RootPage(),

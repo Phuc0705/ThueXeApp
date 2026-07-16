@@ -12,13 +12,15 @@ import '../../../admin/presentation/pages/user_management_page.dart';
 import '../../../admin/presentation/pages/system_car_approval_page.dart';
 import 'edit_profile_page.dart';
 
+import '../../../../core/widgets/gradient_app_bar.dart';
+
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Hồ sơ của tôi')),
+      appBar: const GradientAppBar(title: 'Hồ sơ của tôi'),
       body: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
           if (state is Authenticated) {

@@ -12,6 +12,7 @@ import '../../../car_browsing/presentation/bloc/car_bloc.dart';
 import '../../../car_browsing/presentation/bloc/car_event.dart';
 import 'booking_history_page.dart';
 import 'vnpay_simulation_page.dart';
+import '../../../../core/widgets/gradient_app_bar.dart';
 
 class BookingPage extends StatefulWidget {
   final Car car;
@@ -152,7 +153,7 @@ class _BookingPageState extends State<BookingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Xác nhận đặt xe')),
+      appBar: const GradientAppBar(title: 'Xác nhận đặt xe'),
       body: BlocConsumer<BookingBloc, BookingState>(
         listener: (context, state) {
           if (state is BookingSuccess) {

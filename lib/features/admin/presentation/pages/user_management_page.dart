@@ -4,6 +4,7 @@ import '../../../auth/domain/entities/user_entity.dart';
 import '../bloc/admin_bloc.dart';
 import '../bloc/admin_event.dart';
 import '../bloc/admin_state.dart';
+import '../../../../core/widgets/gradient_app_bar.dart';
 
 class UserManagementPage extends StatefulWidget {
   const UserManagementPage({super.key});
@@ -62,11 +63,11 @@ class _UserManagementPageState extends State<UserManagementPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Quản lý người dùng'),
+      appBar: GradientAppBar(
+        title: 'Quản lý người dùng',
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh, color: Colors.white),
             onPressed: () {
               context.read<AdminBloc>().add(FetchAllUsers());
             },

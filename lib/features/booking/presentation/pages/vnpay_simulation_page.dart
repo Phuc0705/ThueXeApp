@@ -6,6 +6,7 @@ import '../bloc/booking_bloc.dart';
 import '../bloc/booking_event.dart';
 import '../bloc/booking_state.dart';
 import 'package:thuexeproject/config/vietqr_config.dart';
+import '../../../../core/widgets/gradient_app_bar.dart';
 
 class VNPaySimulationPage extends StatefulWidget {
   final String carId;
@@ -85,10 +86,8 @@ class _VNPaySimulationPageState extends State<VNPaySimulationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Thanh toán VietQR'),
-        backgroundColor: Colors.blue[800],
-        foregroundColor: Colors.white,
+      appBar: const GradientAppBar(
+        title: 'Thanh toán VietQR',
       ),
       body: BlocListener<BookingBloc, BookingState>(
         listener: (context, state) {

@@ -7,6 +7,7 @@ import '../../../booking/domain/entities/booking.dart';
 import '../../../booking/presentation/bloc/booking_bloc.dart';
 import '../../../booking/presentation/bloc/booking_event.dart';
 import '../../../booking/presentation/bloc/booking_state.dart';
+import '../../../../core/widgets/gradient_app_bar.dart';
 
 class ManageBookingsPage extends StatefulWidget {
   const ManageBookingsPage({super.key});
@@ -30,7 +31,7 @@ class _ManageBookingsPageState extends State<ManageBookingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Quản lý đơn đặt xe')),
+      appBar: const GradientAppBar(title: 'Quản lý đơn đặt xe'),
       body: BlocConsumer<BookingBloc, BookingState>(
         listener: (context, state) {
           if (state is BookingInitial) {

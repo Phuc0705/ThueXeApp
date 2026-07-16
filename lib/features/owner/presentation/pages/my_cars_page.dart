@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../car_browsing/domain/entities/car.dart';
 import 'add_car_page.dart';
+import '../../../../core/widgets/gradient_app_bar.dart';
 
 class MyCarsPage extends StatefulWidget {
   const MyCarsPage({super.key});
@@ -55,7 +56,7 @@ class _MyCarsPageState extends State<MyCarsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Xe của tôi')),
+      appBar: const GradientAppBar(title: 'Xe của tôi'),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _myCars.isEmpty

@@ -13,6 +13,7 @@ import '../bloc/favorite_cubit.dart';
 import '../widgets/car_card.dart';
 import 'search_car_screen.dart';
 import 'favorite_cars_screen.dart';
+import '../../../../core/widgets/gradient_app_bar.dart';
 
 class CarListScreen extends StatefulWidget {
   const CarListScreen({super.key});
@@ -26,6 +27,7 @@ class _CarListScreenState extends State<CarListScreen> {
   String? _selectedFuel;
   String? _selectedSeats;
   String? _selectedDistrict;
+  String? _selectedDelivery;
 
   @override
   void initState() {
@@ -37,21 +39,15 @@ class _CarListScreenState extends State<CarListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text(
-          'Thuê Xe Tự Lái',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
-        ),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+      appBar: GradientAppBar(
+        title: 'Thuê Xe Tự Lái',
         actions: [
           BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) {
               if (state is Authenticated) {
                 return IconButton(
                   icon: const CircleAvatar(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Colors.white24,
                     child: Icon(Icons.person, color: Colors.white, size: 20),
                   ),
                   onPressed: () {
@@ -63,12 +59,12 @@ class _CarListScreenState extends State<CarListScreen> {
                 onPressed: () {
                   Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginPage()));
                 },
-                child: const Text('Đăng nhập', style: TextStyle(color: Colors.blue)),
+                child: const Text('Đăng nhập', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               );
             },
           ),
           IconButton(
-            icon: const Icon(Icons.favorite, color: Colors.red),
+            icon: const Icon(Icons.favorite, color: Colors.white),
             onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (_) => const FavoriteCarsScreen()));
             },
@@ -112,6 +108,13 @@ class _CarListScreenState extends State<CarListScreen> {
                   }
                   if (_selectedDistrict != null) {
                     filteredCars = filteredCars.where((c) => c.location == _selectedDistrict).toList();
+                  }
+                  if (_selectedDelivery != null) {
+                    if (_selectedDelivery == 'Gặp chủ xe') {
+                      filteredCars = filteredCars.where((c) => c.type.toLowerCase().contains('suv')).toList();
+                    } else { // Tự nhận xe
+                      filteredCars = filteredCars.where((c) => !c.type.toLowerCase().contains('suv')).toList();
+                    }
                   }
 
                   if (filteredCars.isEmpty) {
@@ -203,7 +206,7 @@ class _CarListScreenState extends State<CarListScreen> {
   }
 
   Widget _buildFilterBar() {
-    bool isAll = _selectedBrand == null && _selectedFuel == null && _selectedSeats == null && _selectedDistrict == null;
+    bool isAll = _selectedBrand == null && _selectedFuel == null && _selectedSeats == null && _selectedDistrict == null && _selectedDelivery == null;
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -215,6 +218,7 @@ class _CarListScreenState extends State<CarListScreen> {
               _selectedFuel = null;
               _selectedSeats = null;
               _selectedDistrict = null;
+              _selectedDelivery = null;
             });
           }),
           const SizedBox(width: 8),
@@ -239,6 +243,12 @@ class _CarListScreenState extends State<CarListScreen> {
           _buildFilterChip(_selectedFuel ?? 'Nhiên liệu', hasIcon: true, isSelected: _selectedFuel != null, onTap: () {
             _showFilterOptions('Nhiên liệu', ['Xăng', 'Dầu', 'Điện'], _selectedFuel, (val) {
               setState(() => _selectedFuel = val);
+            });
+          }),
+          const SizedBox(width: 8),
+          _buildFilterChip(_selectedDelivery ?? 'Hình thức', hasIcon: true, isSelected: _selectedDelivery != null, onTap: () {
+            _showFilterOptions('Hình thức nhận xe', ['Tự nhận xe', 'Gặp chủ xe'], _selectedDelivery, (val) {
+              setState(() => _selectedDelivery = val);
             });
           }),
         ],

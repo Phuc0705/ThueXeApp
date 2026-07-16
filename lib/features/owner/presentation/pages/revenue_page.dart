@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/widgets/gradient_app_bar.dart';
 
 class RevenuePage extends StatelessWidget {
   const RevenuePage({super.key});
@@ -6,7 +7,7 @@ class RevenuePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Doanh thu của tôi')),
+      appBar: const GradientAppBar(title: 'Doanh thu của tôi'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

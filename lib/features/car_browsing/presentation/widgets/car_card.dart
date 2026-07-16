@@ -199,7 +199,7 @@ class CarCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${car.pricePerDay.toStringAsFixed(0)}K',
+                            '\$${car.pricePerDay.toStringAsFixed(0)}',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,

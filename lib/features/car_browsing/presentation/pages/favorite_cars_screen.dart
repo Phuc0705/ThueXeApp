@@ -4,6 +4,7 @@ import '../bloc/car_bloc.dart';
 import '../bloc/car_state.dart';
 import '../bloc/favorite_cubit.dart';
 import '../widgets/car_card.dart';
+import '../../../../core/widgets/gradient_app_bar.dart';
 
 class FavoriteCarsScreen extends StatelessWidget {
   const FavoriteCarsScreen({super.key});
@@ -11,8 +12,8 @@ class FavoriteCarsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Xe yêu thích'),
+      appBar: const GradientAppBar(
+        title: 'Xe yêu thích',
       ),
       body: BlocBuilder<FavoriteCubit, List<String>>(
         builder: (context, favorites) {
