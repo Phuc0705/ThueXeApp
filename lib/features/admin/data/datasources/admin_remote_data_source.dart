@@ -71,7 +71,8 @@ class AdminRemoteDataSourceImpl implements AdminRemoteDataSource {
 
   @override
   Future<void> deleteUser(String userId) async {
-    await supabase.from('profiles').delete().eq('id', userId);
+    // Gọi hàm RPC trên Supabase để xóa user triệt để (bao gồm cả auth.users và public.profiles)
+    await supabase.rpc('delete_user', params: {'user_id_param': userId});
   }
 
   @override
@@ -115,12 +116,23 @@ class AdminRemoteDataSourceImpl implements AdminRemoteDataSource {
         .single();
         
     // Nhả xe nếu hoàn thành hoặc hủy
-    if (statusStr == 'completed' || statusStr == 'cancelled') {
-      final carId = response['car_id'];
-      if (carId != null) {
-        await supabase.from('cars').update({'status': 'available'}).eq('id', carId);
+      if (statusStr == 'completed' || statusStr == 'cancelled') {
+        final bookingResponse = await supabase.from('bookings').select('car_id').eq('id', bookingId).single();
+        final carId = bookingResponse['car_id'];
+        
+        final nowStr = DateTime.now().toIso8601String().split('T')[0];
+        final activeCheck = await supabase
+            .from('bookings')
+            .select('id')
+            .eq('car_id', carId)
+            .eq('status', 'approved')
+            .gte('end_date', nowStr)
+            .limit(1);
+            
+        if ((activeCheck as List).isEmpty) {
+          await supabase.from('cars').update({'status': 'available'}).eq('id', carId);
+        }
       }
-    }
     
     return BookingModel.fromJson(response);
   }

@@ -9,6 +9,9 @@ import '../bloc/car_bloc.dart';
 import '../bloc/car_event.dart';
 import '../bloc/car_state.dart';
 import '../bloc/favorite_cubit.dart';
+import '../bloc/trending_car_cubit.dart';
+import '../bloc/trending_car_state.dart';
+import '../../../../core/constants/car_constants.dart';
 import '../widgets/car_card.dart';
 import 'search_car_screen.dart';
 import 'favorite_cars_screen.dart';
@@ -31,6 +34,7 @@ class _CarListScreenState extends State<CarListScreen> {
   void initState() {
     super.initState();
     context.read<CarBloc>().add(const FetchCarsEvent());
+    context.read<TrendingCarCubit>().fetchTrendingCars();
   }
 
   @override
@@ -120,19 +124,20 @@ class _CarListScreenState extends State<CarListScreen> {
                   final availableCars = filteredCars.where((c) => c.isAvailable).toList();
                   final otherCars = filteredCars.where((c) => !c.isAvailable).toList();
 
-                  return BlocBuilder<FavoriteCubit, List<String>>(
-                    builder: (context, favorites) {
-                      final favoriteCarList = filteredCars.where((c) => favorites.contains(c.id)).toList();
-
-                      return Column(
-                        children: [
-                          _buildCarSection('Xe có ngay', availableCars.isNotEmpty ? availableCars : filteredCars),
-                          _buildCarSection('Xe yêu thích', favoriteCarList, isFavoriteSection: true),
-                          _buildCarSection('Xe đã thuê', otherCars), // Only rented cars
-                          const SizedBox(height: 40),
-                        ],
-                      );
-                    },
+                  return Column(
+                    children: [
+                      _buildCarSection('Xe có ngay', availableCars.isNotEmpty ? availableCars : filteredCars),
+                      BlocBuilder<TrendingCarCubit, TrendingCarState>(
+                        builder: (context, trendingState) {
+                          if (trendingState is TrendingCarLoaded && trendingState.cars.isNotEmpty) {
+                            return _buildCarSection('🔥 Top Xe Được Săn Đón Nhất', trendingState.cars);
+                          }
+                          return const SizedBox();
+                        },
+                      ),
+                      _buildCarSection('Xe đã thuê', otherCars),
+                      const SizedBox(height: 40),
+                    ],
                   );
                 } else if (state is CarError) {
                   return Padding(
@@ -221,7 +226,7 @@ class _CarListScreenState extends State<CarListScreen> {
           }),
           const SizedBox(width: 8),
           _buildFilterChip(_selectedBrands.isNotEmpty ? 'Hãng xe (${_selectedBrands.length})' : 'Hãng xe', hasIcon: true, isSelected: _selectedBrands.isNotEmpty, onTap: () {
-            _showFilterOptions('Hãng xe', ['Toyota', 'Honda', 'Ford', 'Mercedes', 'BMW', 'Audi', 'Hyundai', 'Kia', 'Mazda', 'VinFast'], List.from(_selectedBrands), (val) {
+            _showFilterOptions('Hãng xe', CarConstants.carBrands.where((b) => b != 'Khác').toList(), List.from(_selectedBrands), (val) {
               setState(() => _selectedBrands = val);
             });
           }),

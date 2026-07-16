@@ -10,4 +10,5 @@ abstract class CarRepository {
     String? transmission,
     double? maxPrice,
   });
+  Future<Either<Failure, List<Car>>> getTrendingCars({int limit = 5});
 }

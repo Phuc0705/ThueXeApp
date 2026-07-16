@@ -79,9 +79,9 @@ class CarDetailScreen extends StatelessWidget {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Chiếc xe này đang trong tình trạng hoàn hảo, được bảo dưỡng định kỳ và đầy đủ bảo hiểm. Rất phù hợp cho các chuyến du lịch gia đình hoặc đi công tác xa.',
-                    style: TextStyle(fontSize: 16, height: 1.5),
+                  Text(
+                    car.description.isNotEmpty ? car.description : 'Chiếc xe này đang trong tình trạng hoàn hảo, được bảo dưỡng định kỳ và đầy đủ bảo hiểm. Rất phù hợp cho các chuyến du lịch gia đình hoặc đi công tác xa.',
+                    style: const TextStyle(fontSize: 16, height: 1.5),
                   ),
                   const SizedBox(height: 24),
                   const Text(

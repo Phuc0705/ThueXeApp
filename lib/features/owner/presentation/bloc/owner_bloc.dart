@@ -6,18 +6,30 @@ import '../../domain/usecases/update_car_status.dart';
 import 'owner_event.dart';
 import 'owner_state.dart';
 
+import 'dart:async';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 class OwnerBloc extends Bloc<OwnerEvent, OwnerState> {
   final AddCar addCar;
   final GetMyCars getMyCars;
   final DeleteCar deleteCar;
   final UpdateCarStatus updateCarStatus;
+  final SupabaseClient supabase;
+  late final StreamSubscription<AuthState> _authSubscription;
 
   OwnerBloc({
     required this.addCar,
     required this.getMyCars,
     required this.deleteCar,
     required this.updateCarStatus,
+    required this.supabase,
   }) : super(OwnerInitial()) {
+    _authSubscription = supabase.auth.onAuthStateChange.listen((data) {
+      if (data.event == AuthChangeEvent.signedOut) {
+        emit(OwnerInitial());
+      }
+    });
+
     on<GetMyCarsEvent>(_onGetMyCars);
     on<AddCarEvent>(_onAddCar);
     on<DeleteCarEvent>(_onDeleteCar);
