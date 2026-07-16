@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../booking/domain/entities/booking.dart';
 import '../../domain/repositories/admin_repository.dart';
 import 'admin_event.dart';
 import 'admin_state.dart';
@@ -81,7 +82,22 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
     emit(AdminLoading());
     try {
       final bookings = await repository.getAllBookings();
-      emit(AdminBookingsLoaded(bookings));
+      
+      bool hasUpdates = false;
+      final now = DateTime.now();
+      for (var booking in bookings) {
+        if (booking.status == BookingStatus.confirmed && booking.endDate.difference(now).isNegative) {
+          await repository.updateBookingStatus(booking.id, BookingStatus.completed);
+          hasUpdates = true;
+        }
+      }
+      
+      if (hasUpdates) {
+        final updatedBookings = await repository.getAllBookings();
+        emit(AdminBookingsLoaded(updatedBookings));
+      } else {
+        emit(AdminBookingsLoaded(bookings));
+      }
     } catch (e) {
       emit(AdminError('Lỗi tải danh sách đặt xe: ${e.toString()}'));
     }

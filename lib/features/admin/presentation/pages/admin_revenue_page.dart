@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import '../../../auth/domain/entities/user_entity.dart';
 import '../../../booking/domain/entities/booking.dart';
 import '../bloc/admin_bloc.dart';
 import '../bloc/admin_event.dart';
@@ -107,10 +109,11 @@ class _AdminRevenuePageState extends State<AdminRevenuePage> {
                     final appCommission = entry.value['appCommission']!;
                     final ownerPayout = entry.value['ownerPayout']!;
                     
-                    final ownerUser = state.users.firstWhere(
-                      (u) => u.id == ownerId,
-                      orElse: () => state.users.first,
-                    );
+                    UserEntity? foundUser;
+                    try {
+                      foundUser = state.users.firstWhere((u) => u.id == ownerId);
+                    } catch (_) {}
+                    final ownerUser = foundUser ?? state.users.first;
                     
                     final ownerName = ownerUser.id == ownerId ? ownerUser.fullName : 'Chủ xe ẩn danh ($ownerId)';
                     final ownerEmail = ownerUser.id == ownerId ? ownerUser.email : '';

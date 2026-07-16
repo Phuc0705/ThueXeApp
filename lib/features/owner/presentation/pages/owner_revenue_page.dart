@@ -6,6 +6,7 @@ import '../../../booking/presentation/bloc/booking_bloc.dart';
 import '../../../booking/presentation/bloc/booking_event.dart';
 import '../../../booking/presentation/bloc/booking_state.dart';
 import '../../../booking/domain/entities/booking.dart';
+import '../../../car_browsing/domain/entities/car.dart';
 import '../bloc/owner_bloc.dart';
 import '../bloc/owner_event.dart';
 import '../bloc/owner_state.dart';
@@ -108,10 +109,12 @@ class _OwnerRevenuePageState extends State<OwnerRevenuePage> {
                       const Text('Chi tiết doanh thu theo xe', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 16),
                       ...carRevenueMap.entries.map((entry) {
-                        final car = ownerState.cars.firstWhere(
-                          (c) => c.id == entry.key, 
-                          orElse: () => ownerState.cars.first // Fallback if not found (shouldn't happen)
-                        );
+                        Car? foundCar;
+                        try {
+                          foundCar = ownerState.cars.firstWhere((c) => c.id == entry.key);
+                        } catch (_) {}
+                        final car = foundCar ?? ownerState.cars.first;
+                        
                         final revenue = entry.value;
 
                         return Card(
