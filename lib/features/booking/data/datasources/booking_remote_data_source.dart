@@ -22,11 +22,7 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
         .select()
         .single();
         
-    // Cập nhật trạng thái xe thành rented
-    await supabase
-        .from('cars')
-        .update({'status': 'rented'})
-        .eq('id', booking.carId);
+    // Chú ý: Trạng thái xe sẽ được tự động cập nhật bởi Database Trigger trên Supabase (tránh lỗi RLS).
         
     return BookingModel.fromJson(response);
   }
@@ -99,13 +95,7 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
         .select()
         .single();
         
-    // Nhả xe nếu hoàn thành hoặc hủy
-    if (statusStr == 'completed' || statusStr == 'cancelled') {
-      final carId = response['car_id'];
-      if (carId != null) {
-        await supabase.from('cars').update({'status': 'available'}).eq('id', carId);
-      }
-    }
+    // Nhả xe sẽ được tự động xử lý bởi Database Trigger trên Supabase
         
     return BookingModel.fromJson(response);
   }

@@ -5,6 +5,7 @@ import '../bloc/admin_event.dart';
 import '../bloc/admin_state.dart';
 import '../../../car_browsing/presentation/pages/car_detail_screen.dart';
 import '../../../car_browsing/data/models/car_model.dart';
+import '../../../../core/constants/car_constants.dart';
 import '../../../../core/widgets/gradient_app_bar.dart';
 
 class SystemCarManagementPage extends StatefulWidget {
@@ -134,7 +135,7 @@ class _SystemCarManagementPageState extends State<SystemCarManagementPage> {
           }),
           const SizedBox(width: 8),
           _buildFilterChip(_selectedBrands.isNotEmpty ? 'Hãng xe (${_selectedBrands.length})' : 'Hãng xe', hasIcon: true, isSelected: _selectedBrands.isNotEmpty, onTap: () {
-            _showFilterOptions('Hãng xe', ['Toyota', 'Honda', 'Ford', 'Mercedes', 'BMW', 'Audi', 'Hyundai', 'Kia', 'Mazda', 'VinFast'], List.from(_selectedBrands), (val) {
+            _showFilterOptions('Hãng xe', CarConstants.carBrands.where((b) => b != 'Khác').toList(), List.from(_selectedBrands), (val) {
               setState(() => _selectedBrands = val);
             });
           }),

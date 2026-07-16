@@ -4,10 +4,24 @@ import '../../domain/repositories/admin_repository.dart';
 import 'admin_event.dart';
 import 'admin_state.dart';
 
+import 'dart:async';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 class AdminBloc extends Bloc<AdminEvent, AdminState> {
   final AdminRepository repository;
+  final SupabaseClient supabase;
+  late final StreamSubscription<AuthState> _authSubscription;
 
-  AdminBloc({required this.repository}) : super(AdminInitial()) {
+  AdminBloc({
+    required this.repository,
+    required this.supabase,
+  }) : super(AdminInitial()) {
+    _authSubscription = supabase.auth.onAuthStateChange.listen((data) {
+      if (data.event == AuthChangeEvent.signedOut) {
+        emit(AdminInitial());
+      }
+    });
+
     on<FetchDashboardStats>(_onFetchDashboardStats);
     on<FetchAllUsers>(_onFetchAllUsers);
     on<UpdateUserInfo>(_onUpdateUserInfo);

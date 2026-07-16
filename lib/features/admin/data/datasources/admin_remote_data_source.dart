@@ -71,7 +71,8 @@ class AdminRemoteDataSourceImpl implements AdminRemoteDataSource {
 
   @override
   Future<void> deleteUser(String userId) async {
-    await supabase.from('profiles').delete().eq('id', userId);
+    // Gọi hàm RPC trên Supabase để xóa user triệt để (bao gồm cả auth.users và public.profiles)
+    await supabase.rpc('delete_user', params: {'user_id_param': userId});
   }
 
   @override

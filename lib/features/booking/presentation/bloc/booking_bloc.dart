@@ -6,18 +6,30 @@ import '../../domain/usecases/update_booking_status.dart';
 import 'booking_event.dart';
 import 'booking_state.dart';
 
+import 'dart:async';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 class BookingBloc extends Bloc<BookingEvent, BookingState> {
   final CreateBooking createBooking;
   final GetMyBookings getMyBookings;
   final GetOwnerBookings getOwnerBookings;
   final UpdateBookingStatus updateBookingStatus;
+  final SupabaseClient supabase;
+  late final StreamSubscription<AuthState> _authSubscription;
 
   BookingBloc({
     required this.createBooking,
     required this.getMyBookings,
     required this.getOwnerBookings,
     required this.updateBookingStatus,
+    required this.supabase,
   }) : super(BookingInitial()) {
+    _authSubscription = supabase.auth.onAuthStateChange.listen((data) {
+      if (data.event == AuthChangeEvent.signedOut) {
+        emit(BookingInitial());
+      }
+    });
+
     on<CreateBookingEvent>((event, emit) async {
       emit(BookingLoading());
       final result = await createBooking(event.booking);
