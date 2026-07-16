@@ -10,6 +10,7 @@ class CarModel extends Car {
     required super.type,
     required super.isAvailable,
     super.ownerId,
+    super.location,
   });
 
   factory CarModel.fromJson(Map<String, dynamic> json) {
@@ -24,7 +25,14 @@ class CarModel extends Car {
       type: json['type'] ?? '',
       isAvailable: json['status'] == 'available' || json['isAvailable'] == true,
       ownerId: json['owner_id'] ?? '',
+      location: json['location'] ?? _getMockLocation(json['id']),
     );
+  }
+
+  static String _getMockLocation(String? id) {
+    if (id == null) return 'Quận 1';
+    final districts = ['Quận 1', 'Quận 2', 'Quận 3', 'Quận 4', 'Quận 5', 'Quận 7', 'Thủ Đức', 'Bình Thạnh', 'Tân Bình', 'Gò Vấp'];
+    return districts[id.hashCode.abs() % districts.length];
   }
 
   Map<String, dynamic> toJson() {
@@ -36,6 +44,7 @@ class CarModel extends Car {
       'image_urls': [imageUrl],
       'type': type,
       'status': isAvailable ? 'available' : 'rented',
+      'location': location,
     };
   }
 }

@@ -29,11 +29,11 @@ class SearchCarScreen extends StatelessWidget {
           ? const Center(child: Text('Không tìm thấy xe phù hợp.'))
           : GridView.builder(
               padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, 
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 250,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
-                childAspectRatio: 0.65, 
+                childAspectRatio: 0.65,
               ),
               itemCount: cars.length,
               itemBuilder: (context, index) {

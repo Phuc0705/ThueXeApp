@@ -162,7 +162,7 @@ class CarCard extends StatelessWidget {
                       const Icon(Icons.pin_drop_outlined, size: 12, color: Colors.grey),
                       const SizedBox(width: 4),
                       Text(
-                        'Quận 1', // Mock data
+                        car.location,
                         style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     ],

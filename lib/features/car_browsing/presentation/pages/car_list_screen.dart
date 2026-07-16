@@ -110,10 +110,8 @@ class _CarListScreenState extends State<CarListScreen> {
                       filteredCars = filteredCars.where((c) => !c.type.toLowerCase().contains('suv') && !c.type.toLowerCase().contains('mpv')).toList();
                     }
                   }
-                  // Giả lập filter quận (Mock data)
                   if (_selectedDistrict != null) {
-                    // Do Car model hiện tại không có trường district, ta chỉ mock filter để có UX
-                    filteredCars = filteredCars.where((c) => c.hashCode % 2 == 0).toList(); // Lọc giả định
+                    filteredCars = filteredCars.where((c) => c.location == _selectedDistrict).toList();
                   }
 
                   if (filteredCars.isEmpty) {

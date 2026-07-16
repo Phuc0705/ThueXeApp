@@ -89,11 +89,11 @@ class CarDetailScreen extends StatelessWidget {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.location_on, color: Colors.blue),
-                      SizedBox(width: 8),
-                      Expanded(child: Text('Quận 1, Hồ Chí Minh', style: TextStyle(fontSize: 16))),
+                      const Icon(Icons.location_on, color: Colors.blue),
+                      const SizedBox(width: 8),
+                      Expanded(child: Text('${car.location}, Hồ Chí Minh', style: const TextStyle(fontSize: 16))),
                     ],
                   ),
                   const SizedBox(height: 24),
