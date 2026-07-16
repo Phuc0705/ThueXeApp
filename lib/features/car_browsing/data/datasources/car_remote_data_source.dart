@@ -24,7 +24,27 @@ class CarRemoteDataSourceImpl implements CarRemoteDataSource {
     String? transmission,
     double? maxPrice,
   }) async {
-    var dbQuery = supabase.from('cars').select().inFilter('status', ['available', 'rented']);
+    // Tự động dọn dẹp các chuyến xe đã hết hạn (self-healing)
+    try {
+      final nowStr = DateTime.now().toIso8601String().split('T')[0];
+      final expiredBookingsResponse = await supabase
+          .from('bookings')
+          .select('id, car_id')
+          .eq('status', 'approved')
+          .lt('end_date', nowStr);
+          
+      final expiredBookings = expiredBookingsResponse as List;
+      for (var b in expiredBookings) {
+        // Cập nhật booking thành completed
+        await supabase.from('bookings').update({'status': 'completed'}).eq('id', b['id']);
+        // Trả xe về available
+        await supabase.from('cars').update({'status': 'available'}).eq('id', b['car_id']);
+      }
+    } catch (e) {
+      // Bỏ qua lỗi dọn dẹp để không làm gián đoạn fetch cars
+    }
+
+    var dbQuery = supabase.from('cars').select('*, profiles(phone)').inFilter('status', ['available', 'rented']);
     
     if (query != null && query.isNotEmpty) {
       dbQuery = dbQuery.ilike('name', '%$query%');

@@ -25,6 +25,7 @@ dependencies:
   # ⭐ Thêm mới cho VietQR
   qr_flutter: ^4.1.0
   http: ^1.1.0
+  shared_preferences: ^2.5.5
 
 dev_dependencies:
   flutter_test:

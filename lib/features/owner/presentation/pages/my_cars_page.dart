@@ -6,6 +6,8 @@ import '../../../../injection_container.dart';
 import '../bloc/owner_bloc.dart';
 import '../bloc/owner_event.dart';
 import '../bloc/owner_state.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
 
 class MyCarsPage extends StatefulWidget {
   const MyCarsPage({super.key});
@@ -162,6 +164,20 @@ class _MyCarsPageState extends State<MyCarsPage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
+          final authState = context.read<AuthBloc>().state;
+          if (authState is Authenticated) {
+            final user = authState.user;
+            if (user.phoneNumber == null || user.phoneNumber!.trim().isEmpty || 
+                user.idCard == null || user.idCard!.trim().isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Vui lòng cập nhật số điện thoại và CCCD trong phần Chỉnh sửa thông tin cá nhân trước khi đăng ký xe!'),
+                  backgroundColor: Colors.red,
+                )
+              );
+              return;
+            }
+          }
           final result = await Navigator.push(context, MaterialPageRoute(builder: (_) => BlocProvider(
             create: (_) => sl<OwnerBloc>(),
             child: const AddCarPage(),
