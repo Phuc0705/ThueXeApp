@@ -17,38 +17,45 @@ class FavoriteCubit extends Cubit<List<String>> {
   }
 
   Future<void> loadFavorites() async {
+    final userId = supabase.auth.currentUser?.id;
+    if (userId == null) {
+      // If not logged in, clear favorites from memory
+      emit([]);
+      return;
+    }
+
     // 1. Load local first for fast UI
-    final localFavorites = await localDataSource.getFavorites();
+    final localFavorites = await localDataSource.getFavorites(userId);
     emit(localFavorites);
 
-    // 2. Sync with remote if logged in
-    final userId = supabase.auth.currentUser?.id;
-    if (userId != null) {
-      try {
-        final remoteFavorites = await remoteDataSource.getFavorites(userId);
+    // 2. Sync with remote
+    try {
+      final remoteFavorites = await remoteDataSource.getFavorites(userId);
+      
+      // Merge remote and local
+      final merged = {...localFavorites, ...remoteFavorites}.toList();
+      
+      // If there are differences, sync back
+      if (merged.length != localFavorites.length || merged.length != remoteFavorites.length) {
+        emit(merged);
+        await localDataSource.saveFavorites(userId, merged);
         
-        // Merge remote and local
-        final merged = {...localFavorites, ...remoteFavorites}.toList();
-        
-        // If there are differences, sync back
-        if (merged.length != localFavorites.length) {
-          emit(merged);
-          await localDataSource.saveFavorites(merged);
-          
-          // Add local ones to remote that might be missing
-          for (var carId in localFavorites) {
-            if (!remoteFavorites.contains(carId)) {
-              await remoteDataSource.addFavorite(userId, carId);
-            }
+        // Add local ones to remote that might be missing
+        for (var carId in localFavorites) {
+          if (!remoteFavorites.contains(carId)) {
+            await remoteDataSource.addFavorite(userId, carId);
           }
         }
-      } catch (e) {
-        // Ignore remote error, keep using local
       }
+    } catch (e) {
+      // Ignore remote error, keep using local
     }
   }
 
   Future<void> toggleFavorite(String carId) async {
+    final userId = supabase.auth.currentUser?.id;
+    if (userId == null) return; // Unauthenticated users cannot favorite
+
     final List<String> currentFavorites = List.from(state);
     final isFavorite = currentFavorites.contains(carId);
     
@@ -60,20 +67,17 @@ class FavoriteCubit extends Cubit<List<String>> {
     
     // Optimistic UI update
     emit(currentFavorites);
-    await localDataSource.saveFavorites(currentFavorites);
+    await localDataSource.saveFavorites(userId, currentFavorites);
 
     // Sync remote
-    final userId = supabase.auth.currentUser?.id;
-    if (userId != null) {
-      try {
-        if (isFavorite) {
-          await remoteDataSource.removeFavorite(userId, carId);
-        } else {
-          await remoteDataSource.addFavorite(userId, carId);
-        }
-      } catch (e) {
-        // Revert on error? Or just let it be.
+    try {
+      if (isFavorite) {
+        await remoteDataSource.removeFavorite(userId, carId);
+      } else {
+        await remoteDataSource.addFavorite(userId, carId);
       }
+    } catch (e) {
+      // Revert on error? Or just let it be.
     }
   }
 }
