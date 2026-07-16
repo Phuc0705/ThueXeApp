@@ -130,9 +130,9 @@ class _CarListScreenState extends State<CarListScreen> {
 
                       return Column(
                         children: [
-                          _buildCarSection('Xe yêu thích', favoriteCarList, isFavoriteSection: true),
                           _buildCarSection('Xe có ngay', availableCars.isNotEmpty ? availableCars : filteredCars),
-                          _buildCarSection('Tất cả xe', otherCars.isNotEmpty ? otherCars : filteredCars),
+                          _buildCarSection('Xe yêu thích', favoriteCarList, isFavoriteSection: true),
+                          _buildCarSection('Xe đã thuê', otherCars), // Only rented cars
                           const SizedBox(height: 40),
                         ],
                       );

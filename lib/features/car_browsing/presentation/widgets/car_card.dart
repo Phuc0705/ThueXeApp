@@ -4,6 +4,8 @@ import '../pages/car_detail_screen.dart';
 import 'booking_method_dialog.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/favorite_cubit.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
 
 class CarCard extends StatelessWidget {
   final Car car;
@@ -63,25 +65,35 @@ class CarCard extends StatelessWidget {
                 Positioned(
                   top: 8,
                   left: 8,
-                  child: BlocBuilder<FavoriteCubit, List<String>>(
-                    builder: (context, favorites) {
-                      final isFavorite = favorites.contains(car.id);
-                      return InkWell(
-                        onTap: () {
-                          context.read<FavoriteCubit>().toggleFavorite(car.id);
+                  child: BlocBuilder<AuthBloc, AuthState>(
+                    builder: (context, authState) {
+                      return BlocBuilder<FavoriteCubit, List<String>>(
+                        builder: (context, favorites) {
+                          final isFavorite = favorites.contains(car.id);
+                          return InkWell(
+                            onTap: () {
+                              if (authState is Authenticated) {
+                                context.read<FavoriteCubit>().toggleFavorite(car.id);
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Vui lòng đăng nhập để lưu xe yêu thích')),
+                                );
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.3),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                isFavorite ? Icons.favorite : Icons.favorite_border,
+                                color: isFavorite ? Colors.red : Colors.white,
+                                size: 18,
+                              ),
+                            ),
+                          );
                         },
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.3),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            isFavorite ? Icons.favorite : Icons.favorite_border,
-                            color: isFavorite ? Colors.red : Colors.white,
-                            size: 18,
-                          ),
-                        ),
                       );
                     },
                   ),
@@ -151,7 +163,7 @@ class CarCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${car.brand} ${car.name}',
+                    car.name,
                     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

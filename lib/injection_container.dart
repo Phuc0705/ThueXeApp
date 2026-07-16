@@ -27,6 +27,7 @@ import 'features/admin/domain/repositories/admin_repository.dart';
 import 'features/admin/presentation/bloc/admin_bloc.dart';
 import 'features/car_browsing/data/datasources/favorite_local_data_source.dart';
 import 'features/car_browsing/presentation/bloc/favorite_cubit.dart';
+import 'features/car_browsing/data/datasources/favorite_remote_data_source.dart';
 
 final sl = GetIt.instance;
 
@@ -57,6 +58,9 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetCars(sl()));
   sl.registerLazySingleton<CarRepository>(
     () => CarRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<FavoriteRemoteDataSource>(
+    () => FavoriteRemoteDataSourceImpl(sl()),
   );
   sl.registerLazySingleton<CarRemoteDataSource>(
     () => CarRemoteDataSourceImpl(sl()),
@@ -90,6 +94,10 @@ Future<void> init() async {
   );
 
   //! Features - Favorite
-  sl.registerFactory(() => FavoriteCubit(dataSource: sl()));
+  sl.registerFactory(() => FavoriteCubit(
+    localDataSource: sl(),
+    remoteDataSource: sl(),
+    supabase: sl(),
+  ));
   sl.registerLazySingleton(() => FavoriteLocalDataSource());
 }
