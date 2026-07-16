@@ -119,6 +119,22 @@ class _BookingManagementPageState extends State<BookingManagementPage> {
             // Vì yêu cầu: "chỉ hiện xe đã được thuê trên trang quản lý đơn đặt xe của admin"
             final filteredBookings = bookings.where((b) => b.status != BookingStatus.pending).toList();
 
+            // Sắp xếp: Đang thuê (confirmed) lên đầu, hoàn thành/hủy xuống dưới
+            // Với cùng trạng thái, sắp xếp theo thời gian kết thúc lâu nhất trên cùng (giảm dần)
+            filteredBookings.sort((a, b) {
+              int getStatusWeight(BookingStatus status) {
+                if (status == BookingStatus.confirmed) return 0;
+                if (status == BookingStatus.completed) return 1;
+                return 2; // cancelled
+              }
+              
+              int weightCompare = getStatusWeight(a.status).compareTo(getStatusWeight(b.status));
+              if (weightCompare != 0) return weightCompare;
+              
+              // Nếu cùng trạng thái, endDate lớn hơn (lâu nhất) lên trước
+              return b.endDate.compareTo(a.endDate);
+            });
+
             if (filteredBookings.isEmpty) return const Center(child: Text('Không có đơn đặt xe nào.'));
 
             return ListView.builder(

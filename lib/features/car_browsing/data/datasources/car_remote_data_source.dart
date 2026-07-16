@@ -37,8 +37,19 @@ class CarRemoteDataSourceImpl implements CarRemoteDataSource {
       for (var b in expiredBookings) {
         // Cập nhật booking thành completed
         await supabase.from('bookings').update({'status': 'completed'}).eq('id', b['id']);
-        // Trả xe về available
-        await supabase.from('cars').update({'status': 'available'}).eq('id', b['car_id']);
+        
+        // Trả xe về available chỉ khi không còn đơn nào đang thuê
+        final activeCheck = await supabase
+            .from('bookings')
+            .select('id')
+            .eq('car_id', b['car_id'])
+            .eq('status', 'approved')
+            .gte('end_date', nowStr)
+            .limit(1);
+            
+        if ((activeCheck as List).isEmpty) {
+          await supabase.from('cars').update({'status': 'available'}).eq('id', b['car_id']);
+        }
       }
     } catch (e) {
       // Bỏ qua lỗi dọn dẹp để không làm gián đoạn fetch cars
