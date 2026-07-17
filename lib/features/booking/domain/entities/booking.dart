@@ -15,12 +15,6 @@ class Booking extends Equatable {
   final bool addGPS;
   final int deliveryMethod;
   final String note;
-  final String? cancelReason;
-  final String? carName;
-  final String? carImage;
-  final String? customerName;
-  final String? ownerName;
-  final String? ownerPhone;
 
   const Booking({
     required this.id,
@@ -35,14 +29,8 @@ class Booking extends Equatable {
     this.addGPS = false,
     this.deliveryMethod = 0,
     this.note = '',
-    this.cancelReason,
-    this.carName,
-    this.carImage,
-    this.customerName,
-    this.ownerName,
-    this.ownerPhone,
   });
 
   @override
-  List<Object?> get props => [id, carId, userId, startDate, endDate, totalAmount, status, ownerId, addBabySeat, addGPS, deliveryMethod, note, cancelReason, carName, carImage, customerName, ownerName, ownerPhone];
+  List<Object?> get props => [id, carId, userId, startDate, endDate, totalAmount, status, ownerId, addBabySeat, addGPS, deliveryMethod, note];
 }

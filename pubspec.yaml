@@ -5,7 +5,7 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.12.0
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -25,7 +25,6 @@ dependencies:
   # ⭐ Thêm mới cho VietQR
   qr_flutter: ^4.1.0
   http: ^1.1.0
-  shared_preferences: ^2.2.3
 
 dev_dependencies:
   flutter_test:

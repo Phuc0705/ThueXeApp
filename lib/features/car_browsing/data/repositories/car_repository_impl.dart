@@ -30,14 +30,4 @@ class CarRepositoryImpl implements CarRepository {
       return Left(ServerFailure('Không thể tải danh sách xe: $e'));
     }
   }
-
-  @override
-  Future<Either<Failure, List<Car>>> getTrendingCars({int limit = 5}) async {
-    try {
-      final cars = await remoteDataSource.getTrendingCars(limit: limit);
-      return Right(cars);
-    } catch (e) {
-      return Left(ServerFailure('Không thể tải danh sách xe xu hướng: $e'));
-    }
-  }
 }

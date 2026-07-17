@@ -3,8 +3,9 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/constants/car_constants.dart';
 import '../../../../core/widgets/gradient_app_bar.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
 import '../bloc/owner_bloc.dart';
 import '../bloc/owner_event.dart';
 import '../bloc/owner_state.dart';
@@ -34,7 +35,9 @@ class _AddCarPageState extends State<AddCarPage> {
     'Quận 7', 'Quận 8', 'Quận 9', 'Quận 10', 'Quận 11', 'Quận 12',
     'Bình Thạnh', 'Thủ Đức', 'Gò Vấp', 'Phú Nhuận', 'Tân Bình', 'Tân Phú', 'Bình Tân'
   ];
-  final List<String> _brands = CarConstants.carBrands;
+  final List<String> _brands = [
+    'Toyota', 'Honda', 'Ford', 'Mercedes', 'BMW', 'Audi', 'Hyundai', 'Kia', 'Mazda', 'Khác'
+  ];
   
   XFile? _carImage;
   XFile? _docFrontImage;
@@ -59,7 +62,22 @@ class _AddCarPageState extends State<AddCarPage> {
   }
 
   void _submitCar() {
-
+    final authState = context.read<AuthBloc>().state;
+    if (authState is Authenticated) {
+      final user = authState.user;
+      if (user.fullName.trim().isEmpty || 
+          user.phoneNumber == null || user.phoneNumber!.trim().isEmpty || 
+          user.idCard == null || user.idCard!.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Vui lòng cập nhật đầy đủ thông tin (SĐT, CCCD) trong Hồ sơ trước khi đăng ký xe!'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 4),
+          )
+        );
+        return;
+      }
+    }
 
     if (!_formKey.currentState!.validate()) return;
     if (_selectedBrand == 'Khác' && _customBrandController.text.trim().isEmpty) {
@@ -79,19 +97,10 @@ class _AddCarPageState extends State<AddCarPage> {
       return;
     }
 
-    String finalBrand = _selectedBrand;
-    if (_selectedBrand == 'Khác') {
-      final rawBrand = _customBrandController.text.trim();
-      finalBrand = rawBrand.split(' ').map((word) {
-        if (word.isEmpty) return '';
-        return word[0].toUpperCase() + word.substring(1).toLowerCase();
-      }).join(' ');
-    }
-
     context.read<OwnerBloc>().add(
       AddCarEvent(
         name: _nameController.text,
-        brand: finalBrand,
+        brand: _selectedBrand == 'Khác' ? _customBrandController.text.trim() : _selectedBrand,
         pricePerDay: double.parse(_priceController.text),
         type: _selectedType,
         fuelType: 'Xăng', 
@@ -188,20 +197,7 @@ class _AddCarPageState extends State<AddCarPage> {
                     TextFormField(
                       controller: _customBrandController,
                       decoration: const InputDecoration(labelText: 'Nhập tên hãng xe', border: OutlineInputBorder()),
-                      validator: (v) {
-                        if (_selectedBrand != 'Khác') return null;
-                        if (v == null || v.trim().isEmpty) {
-                          return 'Vui lòng nhập tên hãng xe';
-                        }
-                        if (v.trim().length < 2) {
-                          return 'Tên hãng xe phải có ít nhất 2 ký tự';
-                        }
-                        final RegExp brandRegex = RegExp(r'^[a-zA-ZÀ-ỹ\s]+$');
-                        if (!brandRegex.hasMatch(v.trim())) {
-                          return 'Tên hãng xe chỉ được chứa chữ cái và khoảng trắng';
-                        }
-                        return null;
-                      },
+                      validator: (v) => _selectedBrand == 'Khác' && v!.trim().isEmpty ? 'Vui lòng nhập tên hãng xe' : null,
                     ),
                   ],
                   const SizedBox(height: 16),

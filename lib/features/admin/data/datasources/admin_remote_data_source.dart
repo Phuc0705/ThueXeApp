@@ -10,7 +10,7 @@ abstract class AdminRemoteDataSource {
   Future<void> deleteUser(String userId);
   Future<void> changeUserRole(String userId, String role);
   Future<List<BookingModel>> getAllBookings();
-  Future<BookingModel> updateBookingStatus(String bookingId, BookingStatus status, {String? cancelReason});
+  Future<BookingModel> updateBookingStatus(String bookingId, BookingStatus status);
   Future<List<Map<String, dynamic>>> getSystemCars();
   Future<void> approveCar(String carId, bool isApproved);
 }
@@ -71,8 +71,7 @@ class AdminRemoteDataSourceImpl implements AdminRemoteDataSource {
 
   @override
   Future<void> deleteUser(String userId) async {
-    // Gọi hàm RPC trên Supabase để xóa user triệt để (bao gồm cả auth.users và public.profiles)
-    await supabase.rpc('delete_user', params: {'user_id_param': userId});
+    await supabase.from('profiles').delete().eq('id', userId);
   }
 
   @override
@@ -87,14 +86,14 @@ class AdminRemoteDataSourceImpl implements AdminRemoteDataSource {
   Future<List<BookingModel>> getAllBookings() async {
     final response = await supabase
         .from('bookings')
-        .select('*, cars(name, image_urls, profiles(full_name, phone)), profiles(full_name)')
+        .select()
         .order('created_at', ascending: false);
     
     return (response as List).map((json) => BookingModel.fromJson(json)).toList();
   }
 
   @override
-  Future<BookingModel> updateBookingStatus(String bookingId, BookingStatus status, {String? cancelReason}) async {
+  Future<BookingModel> updateBookingStatus(String bookingId, BookingStatus status) async {
     String statusStr = 'pending';
     switch (status) {
       case BookingStatus.pending: statusStr = 'pending'; break;
@@ -103,36 +102,12 @@ class AdminRemoteDataSourceImpl implements AdminRemoteDataSource {
       case BookingStatus.cancelled: statusStr = 'cancelled'; break;
     }
 
-    final updateData = <String, dynamic>{'status': statusStr};
-    if (status == BookingStatus.cancelled && cancelReason != null) {
-      updateData['cancel_reason'] = cancelReason;
-    }
-
     final response = await supabase
         .from('bookings')
-        .update(updateData)
+        .update({'status': statusStr})
         .eq('id', bookingId)
         .select()
         .single();
-        
-    // Nhả xe nếu hoàn thành hoặc hủy
-      if (statusStr == 'completed' || statusStr == 'cancelled') {
-        final bookingResponse = await supabase.from('bookings').select('car_id').eq('id', bookingId).single();
-        final carId = bookingResponse['car_id'];
-        
-        final nowStr = DateTime.now().toIso8601String().split('T')[0];
-        final activeCheck = await supabase
-            .from('bookings')
-            .select('id')
-            .eq('car_id', carId)
-            .eq('status', 'approved')
-            .gte('end_date', nowStr)
-            .limit(1);
-            
-        if ((activeCheck as List).isEmpty) {
-          await supabase.from('cars').update({'status': 'available'}).eq('id', carId);
-        }
-      }
     
     return BookingModel.fromJson(response);
   }

@@ -14,36 +14,9 @@ class BookingModel extends Booking {
     super.addGPS,
     super.deliveryMethod,
     super.note,
-    super.cancelReason,
-    super.carName,
-    super.carImage,
-    super.customerName,
-    super.ownerName,
-    super.ownerPhone,
   });
 
   factory BookingModel.fromJson(Map<String, dynamic> json) {
-    // Parse car details if available from join
-    String? parsedCarName;
-    String? parsedCarImage;
-    String? parsedOwnerName;
-    String? parsedOwnerPhone;
-    if (json['cars'] != null) {
-      parsedCarName = json['cars']['name'];
-      if (json['cars']['image_urls'] != null && (json['cars']['image_urls'] as List).isNotEmpty) {
-        parsedCarImage = json['cars']['image_urls'][0];
-      }
-      if (json['cars']['profiles'] != null) {
-        parsedOwnerName = json['cars']['profiles']['full_name'];
-        parsedOwnerPhone = json['cars']['profiles']['phone'];
-      }
-    }
-    
-    String? parsedCustomerName;
-    if (json['profiles'] != null) {
-      parsedCustomerName = json['profiles']['full_name'];
-    }
-    
     return BookingModel(
       id: json['id'],
       carId: json['car_id'] ?? json['carId'],
@@ -66,12 +39,6 @@ class BookingModel extends Booking {
           default: return BookingStatus.pending;
         }
       }(),
-      cancelReason: json['cancel_reason'],
-      carName: parsedCarName ?? json['carName'],
-      carImage: parsedCarImage ?? json['carImage'],
-      customerName: parsedCustomerName ?? json['customerName'],
-      ownerName: parsedOwnerName ?? json['ownerName'],
-      ownerPhone: parsedOwnerPhone ?? json['ownerPhone'],
     );
   }
 
@@ -96,7 +63,6 @@ class BookingModel extends Booking {
           case BookingStatus.cancelled: return 'cancelled';
         }
       }(),
-      if (cancelReason != null && cancelReason!.isNotEmpty) 'cancel_reason': cancelReason,
     };
   }
 }

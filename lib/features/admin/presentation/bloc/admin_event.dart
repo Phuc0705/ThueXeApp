@@ -43,12 +43,11 @@ class FetchAllBookings extends AdminEvent {}
 class UpdateBookingStatusEvent extends AdminEvent {
   final String bookingId;
   final BookingStatus status;
-  final String? cancelReason;
 
-  const UpdateBookingStatusEvent(this.bookingId, this.status, {this.cancelReason});
+  const UpdateBookingStatusEvent(this.bookingId, this.status);
 
   @override
-  List<Object> get props => [bookingId, status, if (cancelReason != null) cancelReason!];
+  List<Object> get props => [bookingId, status];
 }
 
 class FetchSystemCars extends AdminEvent {}

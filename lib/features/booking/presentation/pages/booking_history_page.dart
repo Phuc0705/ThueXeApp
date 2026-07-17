@@ -80,7 +80,7 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
                           children: [
                             const Text('Tổng thanh toán:', style: TextStyle(color: Colors.grey)),
                             Text(
-                              '\$${booking.totalAmount.toStringAsFixed(2)}',
+                              '\$${booking.totalAmount.toStringAsFixed(0)}',
                               style: const TextStyle(
                                 fontSize: 18, 
                                 fontWeight: FontWeight.bold, 
@@ -121,7 +121,7 @@ class _StatusBadge extends StatelessWidget {
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
       child: Text(text, style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.bold)),
     );
   }

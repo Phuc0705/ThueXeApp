@@ -3,33 +3,17 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../data/datasources/favorite_local_data_source.dart';
 import '../../data/datasources/favorite_remote_data_source.dart';
 
-import 'dart:async';
-
 class FavoriteCubit extends Cubit<List<String>> {
   final FavoriteLocalDataSource localDataSource;
   final FavoriteRemoteDataSource remoteDataSource;
   final SupabaseClient supabase;
-  late final StreamSubscription<AuthState> _authSubscription;
 
   FavoriteCubit({
     required this.localDataSource,
     required this.remoteDataSource,
     required this.supabase,
   }) : super([]) {
-    _authSubscription = supabase.auth.onAuthStateChange.listen((data) {
-      if (data.event == AuthChangeEvent.signedOut) {
-        emit([]);
-      } else if (data.event == AuthChangeEvent.signedIn) {
-        loadFavorites();
-      }
-    });
     loadFavorites();
-  }
-
-  @override
-  Future<void> close() {
-    _authSubscription.cancel();
-    return super.close();
   }
 
   Future<void> loadFavorites() async {

@@ -94,7 +94,7 @@ class OwnerRemoteDataSourceImpl implements OwnerRemoteDataSource {
 
       final response = await supabase
           .from('cars')
-          .select('*, profiles(phone)')
+          .select()
           .eq('owner_id', user.id)
           .order('created_at', ascending: false);
 

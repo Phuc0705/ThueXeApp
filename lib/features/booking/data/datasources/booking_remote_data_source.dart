@@ -6,7 +6,7 @@ abstract class BookingRemoteDataSource {
   Future<BookingModel> createBooking(BookingModel booking);
   Future<List<BookingModel>> getMyBookings(String userId);
   Future<List<BookingModel>> getOwnerBookings(String ownerId);
-  Future<BookingModel> updateBookingStatus(String bookingId, BookingStatus status, {String? cancelReason});
+  Future<BookingModel> updateBookingStatus(String bookingId, BookingStatus status);
 }
 
 class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
@@ -22,22 +22,13 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
         .select()
         .single();
         
-    // Chú ý: Trạng thái xe sẽ được tự động cập nhật bởi Database Trigger trên Supabase (tránh lỗi RLS).
+    // Cập nhật trạng thái xe thành rented
+    await supabase
+        .from('cars')
+        .update({'status': 'rented'})
+        .eq('id', booking.carId);
         
     return BookingModel.fromJson(response);
-  }
-
-  Future<List<BookingModel>> _autoCompleteBookings(List<dynamic> jsonList) async {
-    final List<BookingModel> result = [];
-    final now = DateTime.now();
-    for (var json in jsonList) {
-      var booking = BookingModel.fromJson(json);
-      if (booking.status == BookingStatus.confirmed && booking.endDate.difference(now).isNegative) {
-        booking = await updateBookingStatus(booking.id, BookingStatus.completed);
-      }
-      result.add(booking);
-    }
-    return result;
   }
 
   @override
@@ -48,7 +39,7 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
         .eq('customer_id', userId)
         .order('created_at', ascending: false);
         
-    return _autoCompleteBookings(response as List);
+    return (response as List).map((json) => BookingModel.fromJson(json)).toList();
   }
 
   @override
@@ -70,11 +61,11 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
         .inFilter('car_id', carIds)
         .order('created_at', ascending: false);
         
-    return _autoCompleteBookings(response as List);
+    return (response as List).map((json) => BookingModel.fromJson(json)).toList();
   }
 
   @override
-  Future<BookingModel> updateBookingStatus(String bookingId, BookingStatus status, {String? cancelReason}) async {
+  Future<BookingModel> updateBookingStatus(String bookingId, BookingStatus status) async {
     String statusStr = 'pending';
     switch (status) {
       case BookingStatus.pending: statusStr = 'pending'; break;
@@ -83,19 +74,12 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
       case BookingStatus.cancelled: statusStr = 'cancelled'; break;
     }
 
-    final updateData = <String, dynamic>{'status': statusStr};
-    if (status == BookingStatus.cancelled && cancelReason != null) {
-      updateData['cancel_reason'] = cancelReason;
-    }
-
     final response = await supabase
         .from('bookings')
-        .update(updateData)
+        .update({'status': statusStr})
         .eq('id', bookingId)
         .select()
         .single();
-        
-    // Nhả xe sẽ được tự động xử lý bởi Database Trigger trên Supabase
         
     return BookingModel.fromJson(response);
   }

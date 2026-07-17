@@ -59,7 +59,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final supabase = (remoteDataSource as AuthRemoteDataSourceImpl).supabase;
       final session = supabase.auth.currentSession;
       
-      if (session != null) {
+      if (session != null && session.user != null) {
         final profile = await supabase
             .from('profiles')
             .select()
@@ -70,7 +70,7 @@ class AuthRepositoryImpl implements AuthRepository {
           return Right(UserModel.fromJson(profile));
         } else {
           // Tạo profile nếu người dùng đăng nhập bằng Google lần đầu chưa có profile
-          final user = session.user;
+          final user = session.user!;
           final metadata = user.userMetadata;
           final fullName = metadata?['full_name'] ?? metadata?['name'] ?? user.email?.split('@').first ?? 'Google User';
           final email = user.email ?? '';

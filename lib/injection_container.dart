@@ -1,23 +1,17 @@
 import 'package:get_it/get_it.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'features/auth/data/datasources/auth_remote_data_source.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
-import 'features/auth/domain/usecases/get_current_user_usecase.dart';
 import 'features/auth/domain/usecases/login_usecase.dart';
-import 'features/auth/domain/usecases/login_with_google_usecase.dart';
 import 'features/auth/domain/usecases/register_usecase.dart';
-import 'features/auth/domain/usecases/logout_usecase.dart';
+import 'features/auth/domain/usecases/login_with_google_usecase.dart';
+import 'features/auth/domain/usecases/get_current_user_usecase.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/car_browsing/data/datasources/car_remote_data_source.dart';
 import 'features/car_browsing/data/repositories/car_repository_impl.dart';
 import 'features/car_browsing/domain/repositories/car_repository.dart';
 import 'features/car_browsing/domain/usecases/get_cars.dart';
-import 'features/car_browsing/domain/usecases/get_trending_cars.dart';
 import 'features/car_browsing/presentation/bloc/car_bloc.dart';
-import 'features/car_browsing/presentation/bloc/favorite_cubit.dart';
-import 'features/car_browsing/presentation/bloc/trending_car_cubit.dart';
 import 'features/booking/data/datasources/booking_remote_data_source.dart';
 import 'features/booking/data/repositories/booking_repository_impl.dart';
 import 'features/booking/domain/repositories/booking_repository.dart';
@@ -32,6 +26,7 @@ import 'features/admin/data/repositories/admin_repository_impl.dart';
 import 'features/admin/domain/repositories/admin_repository.dart';
 import 'features/admin/presentation/bloc/admin_bloc.dart';
 import 'features/car_browsing/data/datasources/favorite_local_data_source.dart';
+import 'features/car_browsing/presentation/bloc/favorite_cubit.dart';
 import 'features/car_browsing/data/datasources/favorite_remote_data_source.dart';
 import 'features/owner/data/datasources/owner_remote_data_source.dart';
 import 'features/owner/data/repositories/owner_repository_impl.dart';
@@ -54,13 +49,11 @@ Future<void> init() async {
     registerUseCase: sl(),
     loginWithGoogleUseCase: sl(),
     getCurrentUserUseCase: sl(),
-    logoutUseCase: sl(),
   ));
   sl.registerLazySingleton(() => LoginUseCase(sl()));
   sl.registerLazySingleton(() => RegisterUseCase(sl()));
   sl.registerLazySingleton(() => LoginWithGoogleUseCase(sl()));
   sl.registerLazySingleton(() => GetCurrentUserUseCase(sl()));
-  sl.registerLazySingleton(() => LogoutUseCase(sl()));
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(remoteDataSource: sl()),
   );
@@ -70,10 +63,7 @@ Future<void> init() async {
 
   //! Features - Car Browsing
   sl.registerFactory(() => CarBloc(getCars: sl()));
-  sl.registerFactory(() => TrendingCarCubit(getTrendingCars: sl()));
-
   sl.registerLazySingleton(() => GetCars(sl()));
-  sl.registerLazySingleton(() => GetTrendingCars(sl()));
   sl.registerLazySingleton<CarRepository>(
     () => CarRepositoryImpl(remoteDataSource: sl()),
   );
@@ -90,7 +80,6 @@ Future<void> init() async {
         getMyBookings: sl(),
         getOwnerBookings: sl(),
         updateBookingStatus: sl(),
-        supabase: sl(),
       ));
   sl.registerLazySingleton(() => CreateBooking(sl()));
   sl.registerLazySingleton(() => GetMyBookings(sl()));
@@ -104,7 +93,7 @@ Future<void> init() async {
   );
 
   //! Features - Admin
-  sl.registerFactory(() => AdminBloc(repository: sl(), supabase: sl()));
+  sl.registerFactory(() => AdminBloc(repository: sl()));
   sl.registerLazySingleton<AdminRepository>(
     () => AdminRepositoryImpl(remoteDataSource: sl()),
   );
@@ -126,7 +115,6 @@ Future<void> init() async {
         getMyCars: sl(),
         deleteCar: sl(),
         updateCarStatus: sl(),
-        supabase: sl(),
       ));
   sl.registerLazySingleton(() => AddCar(sl()));
   sl.registerLazySingleton(() => GetMyCars(sl()));

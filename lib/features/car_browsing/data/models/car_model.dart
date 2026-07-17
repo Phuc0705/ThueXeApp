@@ -10,7 +10,6 @@ class CarModel extends Car {
     required super.type,
     required super.isAvailable,
     super.ownerId,
-    super.ownerPhone,
     super.location,
     required super.description,
     required super.seats,
@@ -29,9 +28,6 @@ class CarModel extends Car {
       type: json['type'] ?? '',
       isAvailable: json['status'] == 'available' || json['isAvailable'] == true,
       ownerId: json['owner_id'] ?? '',
-      ownerPhone: (json['profiles'] != null && json['profiles'] is Map) 
-          ? (json['profiles']['phone'] ?? '') 
-          : '',
       location: json['location'] ?? _getMockLocation(json['id']),
       description: json['description'] ?? '',
       seats: json['seats'] ?? 4,

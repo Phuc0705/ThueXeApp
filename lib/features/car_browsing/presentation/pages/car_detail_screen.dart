@@ -79,9 +79,9 @@ class CarDetailScreen extends StatelessWidget {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    car.description.isNotEmpty ? car.description : 'Chiếc xe này đang trong tình trạng hoàn hảo, được bảo dưỡng định kỳ và đầy đủ bảo hiểm. Rất phù hợp cho các chuyến du lịch gia đình hoặc đi công tác xa.',
-                    style: const TextStyle(fontSize: 16, height: 1.5),
+                  const Text(
+                    'Chiếc xe này đang trong tình trạng hoàn hảo, được bảo dưỡng định kỳ và đầy đủ bảo hiểm. Rất phù hợp cho các chuyến du lịch gia đình hoặc đi công tác xa.',
+                    style: TextStyle(fontSize: 16, height: 1.5),
                   ),
                   const SizedBox(height: 24),
                   const Text(
@@ -105,19 +105,6 @@ class CarDetailScreen extends StatelessWidget {
                   const Text(
                     '• Không hút thuốc trong xe\n• Vui lòng giữ gìn vệ sinh\n• Trả xe đúng giờ và đúng lượng nhiên liệu ban đầu',
                     style: TextStyle(fontSize: 16, height: 1.5),
-                  ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Thông tin chủ xe',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(Icons.phone, color: Colors.blue),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(car.ownerPhone.isNotEmpty ? car.ownerPhone : 'Chưa cập nhật', style: const TextStyle(fontSize: 16))),
-                    ],
                   ),
                   const SizedBox(height: 24),
                   const ExpansionTile(
@@ -157,10 +144,8 @@ class CarDetailScreen extends StatelessWidget {
             Expanded(
               child: BlocBuilder<AuthBloc, AuthState>(
                 builder: (context, authState) {
-                  final isOwner = authState is Authenticated && authState.user.id == car.ownerId;
-                  
                   return ElevatedButton(
-                    onPressed: (car.isAvailable && !isOwner) ? () {
+                    onPressed: car.isAvailable ? () {
                       if (authState is Authenticated) {
                         if (authState.user.role == UserRole.admin) {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -168,7 +153,6 @@ class CarDetailScreen extends StatelessWidget {
                           );
                           return;
                         }
-                        
                         // Đã đăng nhập và là user -> Cho phép vào trang đặt xe
                         Navigator.push(
                           context,
@@ -186,12 +170,12 @@ class CarDetailScreen extends StatelessWidget {
                       }
                     } : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isOwner ? Colors.grey : Colors.blue,
+                      backgroundColor: Colors.blue,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: Text(isOwner ? 'XE CỦA BẠN' : (car.isAvailable ? 'ĐẶT XE NGAY' : 'XE ĐÃ ĐƯỢC THUÊ')),
+                    child: Text(car.isAvailable ? 'ĐẶT XE NGAY' : 'XE ĐÃ ĐƯỢC THUÊ'),
                   );
                 },
               ),

@@ -1,27 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../booking/domain/entities/booking.dart';
 import '../../domain/repositories/admin_repository.dart';
 import 'admin_event.dart';
 import 'admin_state.dart';
 
-import 'dart:async';
-import 'package:supabase_flutter/supabase_flutter.dart';
-
 class AdminBloc extends Bloc<AdminEvent, AdminState> {
   final AdminRepository repository;
-  final SupabaseClient supabase;
-  late final StreamSubscription<AuthState> _authSubscription;
 
-  AdminBloc({
-    required this.repository,
-    required this.supabase,
-  }) : super(AdminInitial()) {
-    _authSubscription = supabase.auth.onAuthStateChange.listen((data) {
-      if (data.event == AuthChangeEvent.signedOut) {
-        emit(AdminInitial());
-      }
-    });
-
+  AdminBloc({required this.repository}) : super(AdminInitial()) {
     on<FetchDashboardStats>(_onFetchDashboardStats);
     on<FetchAllUsers>(_onFetchAllUsers);
     on<UpdateUserInfo>(_onUpdateUserInfo);
@@ -96,22 +81,7 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
     emit(AdminLoading());
     try {
       final bookings = await repository.getAllBookings();
-      
-      bool hasUpdates = false;
-      final now = DateTime.now();
-      for (var booking in bookings) {
-        if (booking.status == BookingStatus.confirmed && booking.endDate.difference(now).isNegative) {
-          await repository.updateBookingStatus(booking.id, BookingStatus.completed);
-          hasUpdates = true;
-        }
-      }
-      
-      if (hasUpdates) {
-        final updatedBookings = await repository.getAllBookings();
-        emit(AdminBookingsLoaded(updatedBookings));
-      } else {
-        emit(AdminBookingsLoaded(bookings));
-      }
+      emit(AdminBookingsLoaded(bookings));
     } catch (e) {
       emit(AdminError('Lỗi tải danh sách đặt xe: ${e.toString()}'));
     }
@@ -119,7 +89,7 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
 
   Future<void> _onUpdateBookingStatus(UpdateBookingStatusEvent event, Emitter<AdminState> emit) async {
     try {
-      await repository.updateBookingStatus(event.bookingId, event.status, cancelReason: event.cancelReason);
+      await repository.updateBookingStatus(event.bookingId, event.status);
       final bookings = await repository.getAllBookings();
       emit(const AdminActionSuccess('Cập nhật trạng thái thành công'));
       emit(AdminBookingsLoaded(bookings));

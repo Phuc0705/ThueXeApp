@@ -4,7 +4,6 @@ import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
 import '../../domain/usecases/login_with_google_usecase.dart';
 import '../../domain/usecases/get_current_user_usecase.dart';
-import '../../domain/usecases/logout_usecase.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -13,14 +12,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final RegisterUseCase registerUseCase;
   final LoginWithGoogleUseCase loginWithGoogleUseCase;
   final GetCurrentUserUseCase getCurrentUserUseCase;
-  final LogoutUseCase logoutUseCase;
 
   AuthBloc({
     required this.loginUseCase,
     required this.registerUseCase,
     required this.loginWithGoogleUseCase,
     required this.getCurrentUserUseCase,
-    required this.logoutUseCase,
   }) : super(AuthInitial()) {
     on<CheckAuthStatus>((event, emit) async {
       emit(AuthLoading());
@@ -78,14 +75,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
     });
 
-    on<LogoutRequested>((event, emit) async {
-      emit(AuthLoading());
-      final result = await logoutUseCase(NoParams());
-      result.fold(
-        (failure) => emit(AuthError(failure.message)), // Even if logout fails, we might still want to emit Unauthenticated, but let's just emit Unauthenticated regardless below or on success
-        (_) => emit(Unauthenticated()),
-      );
-      emit(Unauthenticated()); // Always force unauthenticated
+    on<LogoutRequested>((event, emit) {
+      emit(Unauthenticated());
     });
   }
 }

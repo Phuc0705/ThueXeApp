@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/car.dart';
 import '../pages/car_detail_screen.dart';
+import 'booking_method_dialog.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/favorite_cubit.dart';
-import '../bloc/trending_car_cubit.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 
@@ -73,7 +73,6 @@ class CarCard extends StatelessWidget {
                             onTap: () {
                               if (authState is Authenticated) {
                                 context.read<FavoriteCubit>().toggleFavorite(car.id);
-                                context.read<TrendingCarCubit>().fetchTrendingCars();
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(content: Text('Vui lòng đăng nhập để lưu xe yêu thích')),
@@ -157,7 +156,7 @@ class CarCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '\$${car.pricePerDay.toStringAsFixed(2)}',
+                            '\$${car.pricePerDay.toStringAsFixed(0)}',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
