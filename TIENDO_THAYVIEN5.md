@@ -36,3 +36,4 @@
 - C?p nh?t tinh ch?nh UI và Logic ph?n 6
 - C?p nh?t tinh ch?nh UI và Logic ph?n 7
 - C?p nh?t tinh ch?nh UI và Logic ph?n 8
+- C?p nh?t tinh ch?nh UI và Logic ph?n 1
