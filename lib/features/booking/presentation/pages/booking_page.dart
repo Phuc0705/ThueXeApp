@@ -3,15 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
-import '../../domain/entities/booking.dart';
 import '../../presentation/bloc/booking_bloc.dart';
-import '../../presentation/bloc/booking_event.dart';
 import '../../presentation/bloc/booking_state.dart';
 import '../../../car_browsing/domain/entities/car.dart';
 import '../../../car_browsing/presentation/bloc/car_bloc.dart';
 import '../../../car_browsing/presentation/bloc/car_event.dart';
 import 'booking_history_page.dart';
 import 'vnpay_simulation_page.dart';
+import '../../../../core/widgets/gradient_app_bar.dart';
 
 class BookingPage extends StatefulWidget {
   final Car car;
@@ -25,21 +24,17 @@ class BookingPage extends StatefulWidget {
 class _BookingPageState extends State<BookingPage> {
   DateTimeRange? _selectedDateRange;
 
-  // Tính năng Chọn Giờ
   TimeOfDay _pickupTime = const TimeOfDay(hour: 8, minute: 0);
   TimeOfDay _dropoffTime = const TimeOfDay(hour: 20, minute: 0);
 
-  // Ghi chú cho chủ xe
   final TextEditingController _noteController = TextEditingController();
 
-  // 1. Phụ kiện
   bool _addBabySeat = false;
   bool _addGPS = false;
-  // 2. Hình thức nhận xe (0: Tự lấy, 1: Giao tận nơi)
+  bool _addInsurance = false;
+
   int _deliveryMethod = 0;
-  // 3. Thuê tài xế
-  bool _withDriver = false;
-  // 4. Điều khoản
+
   bool _isAgreedToTerms = false;
 
   void _selectDateRange() async {
@@ -73,19 +68,18 @@ class _BookingPageState extends State<BookingPage> {
   }
 
   double _calculateTotal() {
-    if (_selectedDateRange == null) return 0;
-    final days = _selectedDateRange!.duration.inDays + 1;
-    double total = days * widget.car.pricePerDay;
+    double total = 0;
 
-    // Phụ kiện & Dịch vụ đi kèm
-    if (_addBabySeat) total += (days * 2.0); // 2$/ngày
-    if (_addGPS) total += 10.0; // 10$ trọn gói
+    if (_selectedDateRange != null) {
+      final days = _selectedDateRange!.duration.inDays + 1;
+      total += days * widget.car.pricePerDay;
+      if (_addBabySeat) total += (days * 2.0);
+      if (_addInsurance) total += (days * 5.0);
+    }
 
-    // Hình thức nhận xe
-    if (_deliveryMethod == 1) total += 15.0; // Phí giao xe 15$
+    if (_addGPS) total += 10.0;
 
-    // Thuê tài xế
-    if (_withDriver) total += (days * 30.0); // 30$/ngày
+    if (_deliveryMethod == 1) total += 15.0;
 
     return total;
   }
@@ -96,9 +90,9 @@ class _BookingPageState extends State<BookingPage> {
     final days = _selectedDateRange!.duration.inDays + 1;
     final basePrice = days * widget.car.pricePerDay;
     final babySeatPrice = _addBabySeat ? (days * 2.0) : 0.0;
+    final insurancePrice = _addInsurance ? (days * 5.0) : 0.0;
     final gpsPrice = _addGPS ? 10.0 : 0.0;
     final deliveryPrice = _deliveryMethod == 1 ? 15.0 : 0.0;
-    final driverPrice = _withDriver ? (days * 30.0) : 0.0;
 
     showModalBottomSheet(
         context: context,
@@ -116,15 +110,15 @@ class _BookingPageState extends State<BookingPage> {
                 const Divider(height: 30),
                 _buildBreakdownRow('Thuê xe ($days ngày)', basePrice),
                 if (_addBabySeat) _buildBreakdownRow('Ghế an toàn trẻ em', babySeatPrice),
+                if (_addInsurance) _buildBreakdownRow('Bảo hiểm thân vỏ', insurancePrice),
                 if (_addGPS) _buildBreakdownRow('Thiết bị GPS', gpsPrice),
                 if (_deliveryMethod == 1) _buildBreakdownRow('Giao xe tận nơi', deliveryPrice),
-                if (_withDriver) _buildBreakdownRow('Thuê tài xế riêng', driverPrice),
                 const Divider(height: 30),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text('Tổng cộng', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    Text('\$${_calculateTotal().toStringAsFixed(0)}',
+                    Text('\$${_calculateTotal().toStringAsFixed(2)}',
                         style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.blue)),
                   ],
                 ),
@@ -143,7 +137,7 @@ class _BookingPageState extends State<BookingPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(title, style: const TextStyle(fontSize: 15, color: Colors.grey)),
-          Text('\$${price.toStringAsFixed(0)}', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+          Text('\$${price.toStringAsFixed(2)}', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -152,11 +146,11 @@ class _BookingPageState extends State<BookingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Xác nhận đặt xe')),
+      appBar: const GradientAppBar(title: 'Xác nhận đặt xe'),
       body: BlocConsumer<BookingBloc, BookingState>(
         listener: (context, state) {
           if (state is BookingSuccess) {
-            context.read<CarBloc>().add(FetchCarsEvent());
+            context.read<CarBloc>().add(const FetchCarsEvent());
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Đặt xe thành công!'), backgroundColor: Colors.green),
             );
@@ -182,12 +176,11 @@ class _BookingPageState extends State<BookingPage> {
                   child: ListTile(
                     leading: const Icon(Icons.directions_car),
                     title: Text(widget.car.name),
-                    subtitle: Text('${widget.car.brand} • \$${widget.car.pricePerDay.toStringAsFixed(0)}/ngày'),
+                    subtitle: Text('${widget.car.brand} • \$${widget.car.pricePerDay.toStringAsFixed(2)}/ngày'),
                   ),
                 ),
                 const SizedBox(height: 16),
 
-                // Chọn Ngày
                 InkWell(
                   onTap: _selectDateRange,
                   child: Container(
@@ -215,7 +208,6 @@ class _BookingPageState extends State<BookingPage> {
                 ),
                 const SizedBox(height: 12),
 
-                // Chọn Giờ
                 Row(
                   children: [
                     Expanded(
@@ -261,11 +253,9 @@ class _BookingPageState extends State<BookingPage> {
                 ),
                 const SizedBox(height: 12),
 
-                // Danh sách các tùy chọn
                 Expanded(
                   child: ListView(
                     children: [
-                      // Ghi chú
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 8.0),
                         child: Text('Ghi chú bổ sung', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
@@ -284,7 +274,6 @@ class _BookingPageState extends State<BookingPage> {
                       ),
                       const Divider(height: 24),
 
-                      // Phụ kiện
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 8.0),
                         child: Text('Phụ kiện & Dịch vụ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
@@ -303,9 +292,16 @@ class _BookingPageState extends State<BookingPage> {
                         controlAffinity: ListTileControlAffinity.leading,
                         onChanged: (bool? value) => setState(() => _addGPS = value ?? false),
                       ),
+                      CheckboxListTile(
+                        title: const Text('Bảo hiểm chuyến đi (+\$5/ngày)'),
+                        subtitle: const Text('An tâm hơn với bảo hiểm thân vỏ'),
+                        value: _addInsurance,
+                        contentPadding: EdgeInsets.zero,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        onChanged: (bool? value) => setState(() => _addInsurance = value ?? false),
+                      ),
                       const Divider(),
 
-                      // Hình thức nhận xe
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 8.0),
                         child: Text('Hình thức nhận xe', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
@@ -325,45 +321,12 @@ class _BookingPageState extends State<BookingPage> {
                         onChanged: (int? value) => setState(() => _deliveryMethod = value!),
                       ),
                       const Divider(),
-
-                      // Thuê tài xế
-                      SwitchListTile(
-                        title: const Text('Thuê tài xế riêng', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        subtitle: const Text('Thư giãn tận hưởng chuyến đi (+\$30/ngày)'),
-                        value: _withDriver,
-                        contentPadding: EdgeInsets.zero,
-                        activeColor: Colors.blue,
-                        onChanged: (bool value) => setState(() => _withDriver = value),
-                      ),
-                      const Divider(),
-
-                      // Chính sách hủy chuyến
-                      const ExpansionTile(
-                        title: Text(
-                          'Chính sách hủy chuyến',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
-                        ),
-                        tilePadding: EdgeInsets.zero,
-                        expandedAlignment: Alignment.topLeft,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-                            child: Text(
-                              '• Miễn phí hủy chuyến trong vòng 24h sau khi thực hiện đặt xe.\n'
-                                  '• Hoàn tiền 100% nếu hủy chuyến trước thời gian nhận xe ít nhất 48h.\n'
-                                  '• Thu phí 50% giá trị đơn hàng nếu thực hiện hủy chuyến trong vòng 24h trước khi nhận xe.',
-                              style: TextStyle(fontSize: 13, color: Colors.grey, height: 1.5),
-                            ),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 ),
 
                 const Divider(),
 
-                // Khối tính tiền tích hợp Bảng chi tiết (Bottom Sheet)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -379,14 +342,13 @@ class _BookingPageState extends State<BookingPage> {
                       ],
                     ),
                     Text(
-                      '\$${_calculateTotal().toStringAsFixed(0)}',
+                      '\$${_calculateTotal().toStringAsFixed(2)}',
                       style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
 
-                // Điều khoản
                 Row(
                   children: [
                     Checkbox(
@@ -403,7 +365,6 @@ class _BookingPageState extends State<BookingPage> {
                 ),
                 const SizedBox(height: 12),
 
-                // Nút Xác nhận
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -420,6 +381,10 @@ class _BookingPageState extends State<BookingPage> {
                               startDate: _selectedDateRange!.start,
                               endDate: _selectedDateRange!.end,
                               totalAmount: _calculateTotal(),
+                              addBabySeat: _addBabySeat,
+                              addGPS: _addGPS,
+                              deliveryMethod: _deliveryMethod,
+                              note: _noteController.text,
                             ),
                           ),
                         );
