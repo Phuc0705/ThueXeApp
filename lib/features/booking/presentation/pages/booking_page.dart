@@ -28,14 +28,16 @@ class _BookingPageState extends State<BookingPage> {
   TimeOfDay _dropoffTime = const TimeOfDay(hour: 20, minute: 0);
 
   final TextEditingController _noteController = TextEditingController();
+  final TextEditingController _promoController = TextEditingController();
 
   bool _addBabySeat = false;
   bool _addGPS = false;
   bool _addInsurance = false;
-
   int _deliveryMethod = 0;
-
   bool _isAgreedToTerms = false;
+  
+  double _discountPercent = 0.0;
+  String _appliedPromoMessage = '';
 
   void _selectDateRange() async {
     final DateTimeRange? picked = await showDateRangePicker(
@@ -67,21 +69,44 @@ class _BookingPageState extends State<BookingPage> {
     }
   }
 
-  double _calculateTotal() {
-    double total = 0;
+  void _applyPromoCode() {
+    setState(() {
+      String code = _promoController.text.trim().toUpperCase();
+      if (code == 'BAOANH10') {
+        _discountPercent = 0.10;
+        _appliedPromoMessage = 'Đã áp dụng mã giảm giá 10%!';
+      } else if (code == 'HUYTUAN20') {
+        _discountPercent = 0.20;
+        _appliedPromoMessage = 'Đã áp dụng mã giảm giá 20%!';
+      } else if (code.isNotEmpty) {
+        _discountPercent = 0.0;
+        _appliedPromoMessage = 'Mã giảm giá không hợp lệ!';
+      } else {
+        _discountPercent = 0.0;
+        _appliedPromoMessage = '';
+      }
+    });
+  }
+
+  double _calculateSubtotal() {
+    double subtotal = 0;
 
     if (_selectedDateRange != null) {
       final days = _selectedDateRange!.duration.inDays + 1;
-      total += days * widget.car.pricePerDay;
-      if (_addBabySeat) total += (days * 2.0);
-      if (_addInsurance) total += (days * 5.0);
+      subtotal += days * widget.car.pricePerDay;
+      if (_addBabySeat) subtotal += (days * 2.0);
+      if (_addInsurance) subtotal += (days * 5.0);
     }
 
-    if (_addGPS) total += 10.0;
+    if (_addGPS) subtotal += 10.0;
+    if (_deliveryMethod == 1) subtotal += 15.0;
 
-    if (_deliveryMethod == 1) total += 15.0;
+    return subtotal;
+  }
 
-    return total;
+  double _calculateTotal() {
+    double subtotal = _calculateSubtotal();
+    return subtotal - (subtotal * _discountPercent);
   }
 
   void _showPriceBreakdown() {
@@ -93,6 +118,9 @@ class _BookingPageState extends State<BookingPage> {
     final insurancePrice = _addInsurance ? (days * 5.0) : 0.0;
     final gpsPrice = _addGPS ? 10.0 : 0.0;
     final deliveryPrice = _deliveryMethod == 1 ? 15.0 : 0.0;
+    
+    final subtotal = _calculateSubtotal();
+    final discountAmount = subtotal * _discountPercent;
 
     showModalBottomSheet(
         context: context,
@@ -113,6 +141,17 @@ class _BookingPageState extends State<BookingPage> {
                 if (_addInsurance) _buildBreakdownRow('Bảo hiểm thân vỏ', insurancePrice),
                 if (_addGPS) _buildBreakdownRow('Thiết bị GPS', gpsPrice),
                 if (_deliveryMethod == 1) _buildBreakdownRow('Giao xe tận nơi', deliveryPrice),
+                if (_discountPercent > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Giảm giá', style: TextStyle(fontSize: 15, color: Colors.green)),
+                        Text('-\$${discountAmount.toStringAsFixed(2)}', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.green)),
+                      ],
+                    ),
+                  ),
                 const Divider(height: 30),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -272,6 +311,51 @@ class _BookingPageState extends State<BookingPage> {
                           fillColor: Colors.grey[100],
                         ),
                       ),
+                      const Divider(height: 24),
+
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text('Mã giảm giá', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _promoController,
+                              decoration: InputDecoration(
+                                hintText: 'Nhập mã giảm giá...',
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton(
+                            onPressed: _applyPromoCode,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                            child: const Text('Áp dụng', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                        ],
+                      ),
+                      if (_appliedPromoMessage.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            _appliedPromoMessage,
+                            style: TextStyle(
+                              color: _discountPercent > 0 ? Colors.green : Colors.red,
+                              fontStyle: FontStyle.italic,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
                       const Divider(height: 24),
 
                       const Padding(
